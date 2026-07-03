@@ -60,6 +60,25 @@ const {
 		return Number.isFinite(parsed) ? parsed : fallback;
 	}
 
+	function normalizeWallpaperMode(mode) {
+		const fallback = defaultWallpaperMode === "none" ? "none" : "banner";
+		return mode === "banner" || mode === "none" ? mode : fallback;
+	}
+
+	function getWallpaperMode() {
+		if (!wallpaperEnabled) {
+			return normalizeWallpaperMode(defaultWallpaperMode);
+		}
+		const storedMode = localStorage.getItem("wallpaperMode");
+		const wallpaperMode = normalizeWallpaperMode(
+			storedMode || defaultWallpaperMode,
+		);
+		if (storedMode && storedMode !== wallpaperMode) {
+			localStorage.setItem("wallpaperMode", wallpaperMode);
+		}
+		return wallpaperMode;
+	}
+
 	function syncMainContentPosition(mode) {
 		const mainContent = document.querySelector(
 			".absolute.w-full.z-30.pointer-events-none",
@@ -170,8 +189,7 @@ const {
 
 	// 立即执行，在页面渲染前应用壁纸模式和布局模式，避免闪烁
 	(function () {
-		const wallpaperMode =
-			wallpaperEnabled ? (localStorage.getItem("wallpaperMode") || defaultWallpaperMode) : defaultWallpaperMode;
+		const wallpaperMode = getWallpaperMode();
 		const body = document.body;
 		applyWallpaperVisualSettings(wallpaperMode);
 
@@ -268,8 +286,7 @@ const {
 
 	// 根据壁纸模式动态设置 banner 和全屏壁纸的显示
 	function applyWallpaperMode() {
-		const wallpaperMode =
-			wallpaperEnabled ? (localStorage.getItem("wallpaperMode") || defaultWallpaperMode) : defaultWallpaperMode;
+		const wallpaperMode = getWallpaperMode();
 
 		// 同步波浪状态：配置 enable 优先，其次 localStorage
 		if (!wavesEnabled) {

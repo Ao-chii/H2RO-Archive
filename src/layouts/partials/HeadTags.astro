@@ -8,11 +8,7 @@
 
 import { profileConfig, siteConfig } from "@/config";
 
-import {
-	DARK_MODE,
-	DEFAULT_THEME,
-	LIGHT_MODE,
-} from "../../constants/constants";
+import { LIGHT_MODE } from "../../constants/constants";
 import { defaultFavicons } from "../../constants/icon";
 import type { Favicon } from "../../types/config";
 import { url } from "../../utils/url-utils";
@@ -104,31 +100,19 @@ const favicons: Favicon[] =
 <script
 	is:inline
 	define:vars={{
-		DEFAULT_THEME,
 		LIGHT_MODE,
-		DARK_MODE,
 		BANNER_HEIGHT_EXTEND: 30,
 		configHue,
 		themeColorFixed: siteConfig.themeColor.fixed ?? false,
 		pageScaling: siteConfig.pageScaling,
 	}}
 >
-	// Load the theme from local storage
-	const theme = localStorage.getItem("theme") || DEFAULT_THEME;
-	let isDark = false;
-	switch (theme) {
-		case LIGHT_MODE:
-			document.documentElement.classList.remove("dark");
-			isDark = false;
-			break;
-		case DARK_MODE:
-			document.documentElement.classList.add("dark");
-			isDark = true;
-			break;
-	}
+	// H2RO Archive 第一阶段只做浅色纸面，不暴露暗色模式。
+	localStorage.setItem("theme", LIGHT_MODE);
+	document.documentElement.classList.remove("dark");
 
 	// Set the theme for Expressive Code based on current mode
-	const expressiveTheme = isDark ? "github-dark" : "github-light";
+	const expressiveTheme = "github-light";
 	const currentTheme = document.documentElement.getAttribute("data-theme");
 	// 只在主题不同时才更新，避免触发不必要的重绘
 	if (currentTheme !== expressiveTheme) {

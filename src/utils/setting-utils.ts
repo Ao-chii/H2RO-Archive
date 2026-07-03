@@ -120,13 +120,26 @@ export function getStoredTheme(): LIGHT_DARK_MODE {
 	return (localStorage.getItem("theme") as LIGHT_DARK_MODE) || DEFAULT_THEME;
 }
 
+function normalizeWallpaperMode(mode: WALLPAPER_MODE): WALLPAPER_MODE {
+	if (mode === "banner" || mode === "none") {
+		return mode;
+	}
+	return siteConfig.wallpaperMode.defaultMode as WALLPAPER_MODE;
+}
+
 export function getStoredWallpaperMode(): WALLPAPER_MODE {
 	if (!fullscreenWallpaperConfig.enable)
-		return siteConfig.wallpaperMode.defaultMode as WALLPAPER_MODE;
-	return (
+		return normalizeWallpaperMode(
+			siteConfig.wallpaperMode.defaultMode as WALLPAPER_MODE,
+		);
+	const storedMode =
 		(localStorage.getItem("wallpaperMode") as WALLPAPER_MODE) ||
-		siteConfig.wallpaperMode.defaultMode
-	);
+		(siteConfig.wallpaperMode.defaultMode as WALLPAPER_MODE);
+	const normalizedMode = normalizeWallpaperMode(storedMode);
+	if (normalizedMode !== storedMode) {
+		localStorage.setItem("wallpaperMode", normalizedMode);
+	}
+	return normalizedMode;
 }
 
 export function setWallpaperMode(mode: WALLPAPER_MODE): void {

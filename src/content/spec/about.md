@@ -1,49 +1,22 @@
+# H2RO Archive
 
-This website is built with the **Astro** framework using the [Mizuki](https://github.com/LyraVoid/Mizuki) theme.
+H2RO Archive 用来整理我过往学习、项目和生活中可以公开的成果材料。
 
-::github{repo="LyraVoid/Mizuki"}
+这里不是作品集营销页，也不是完整私人仓库。它更像一份公开档案：每条记录尽量说明标题、时间、分类、来源、状态和相关材料，方便之后检索、复盘和引用。
 
-## 🌟 Theme Features
+## 收录范围
 
-### 🎨 Design & User Experience
-- **Modern & Elegant Design** - Clean, minimalist interface with beautiful typography
-- **Fully Responsive** - Optimized for all devices from mobile to desktop
-- **Dark/Light Mode** - Automatic theme switching with smooth transitions
-- **Beautiful Typography** - Enhanced readability with JetBrains Mono font
-- **Smooth Animations** - Fluid page transitions and interactive elements
+- Markdown 笔记、项目记录和公开文档。
+- Word、PDF 等文档材料。
+- 可公开的项目说明、演示链接、源码链接和阶段记录。
+- 少量生活相关的公开记录。
 
-### 🔍 Content & Search
-- **Advanced Search** - Powered by [Pagefind](https://pagefind.app/) for fast, accurate results
-- **Enhanced Markdown** - Extended syntax with code highlighting and math support
-- **Interactive Table of Contents** - Auto-scroll navigation for long articles
-- **RSS Feed Generation** - Stay updated with automatic feed generation
-- **Reading Time Estimation** - Know how long articles take to read
-- **Post Categorization** - Organize content with tags and categories
+## 不收录内容
 
+- 私密信息、账号凭证、未授权材料。
+- 仍处在敏感阶段、不能公开传播的项目上下文。
+- 没有来源、无法确认公开边界的文件。
 
+## 当前状态
 
-### 📱 Special Pages
-- **Anime Tracking Page** - Track your anime watching progress with ratings
-- **Friends Links Page** - Showcase friend websites with beautiful cards
-- **Diary/Moments Page** - Share life moments like social media posts
-- **Archive Page** - Organized timeline view of all posts
-- **About Page** - Customizable personal introduction (this page!)
-
-### 🛠 Technical Features
-- **Enhanced Code Blocks** - Powered by [Expressive Code](https://expressive-code.com/)
-- **Math Support** - LaTeX rendering with KaTeX for mathematical expressions
-- **Image Optimization** - PhotoSwipe gallery with lazy loading
-- **SEO Optimized** - Built-in sitemap and meta tags for better search visibility
-- **Performance Optimized** - Fast loading with caching and optimization
-- **Comment System Ready** - Integration support for Twikoo comments
-
-### 🎯 Advanced Markdown Features
-- **Callouts & Admonitions** - Beautiful info boxes with `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`
-- **Mathematical Equations** - Write LaTeX math with `$inline$` and `$$block$$` syntax
-- **GitHub Cards** - Embed repository cards with `::github{repo="user/repo"}`
-- **Syntax Highlighting** - Advanced code highlighting with line numbers
-- **Copy Code Buttons** - Easy code copying functionality
-
----
-
-*Built with ❤️ using Astro and inspired by modern web design principles.*
+网站基于 Mizuki 模板改造，第一阶段先保留它成熟的 Astro 内容、搜索、归档、Markdown 和项目页能力，再逐步把视觉与信息结构调整成「纸面档案」系统。

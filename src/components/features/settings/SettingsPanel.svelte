@@ -1,7 +1,6 @@
 <script lang="ts">
 import {
 	WALLPAPER_BANNER,
-	WALLPAPER_FULLSCREEN,
 	WALLPAPER_NONE,
 	WALLPAPER_OVERLAY,
 } from "@constants/constants";
@@ -140,6 +139,13 @@ function resetWallpaperMode() {
 	setWallpaperMode(defaultWallpaperMode as WALLPAPER_MODE);
 }
 
+function normalizeWallpaperMode(mode: WALLPAPER_MODE): WALLPAPER_MODE {
+	if (mode === WALLPAPER_BANNER || mode === WALLPAPER_NONE) {
+		return mode;
+	}
+	return defaultWallpaperMode as WALLPAPER_MODE;
+}
+
 function resetLayout() {
 	currentLayout = defaultLayout;
 	localStorage.removeItem("postListLayout");
@@ -199,9 +205,10 @@ function toggleSakuraEnabled() {
 }
 
 function switchWallpaperMode(newMode: WALLPAPER_MODE) {
-	wallpaperMode = newMode;
-	setWallpaperMode(newMode);
-	if (newMode === WALLPAPER_OVERLAY) {
+	const normalizedMode = normalizeWallpaperMode(newMode);
+	wallpaperMode = normalizedMode;
+	setWallpaperMode(normalizedMode);
+	if (normalizedMode === WALLPAPER_OVERLAY) {
 		requestAnimationFrame(refreshAllRangeProgress);
 	}
 }
@@ -241,7 +248,11 @@ function checkMobile() {
 }
 
 onMount(() => {
-	wallpaperMode = getStoredWallpaperMode();
+	const storedWallpaperMode = getStoredWallpaperMode();
+	wallpaperMode = normalizeWallpaperMode(storedWallpaperMode);
+	if (wallpaperMode !== storedWallpaperMode) {
+		setWallpaperMode(wallpaperMode);
+	}
 	overlayOpacity = getStoredOverlayOpacity();
 	overlayBlur = getStoredOverlayBlur();
 	overlayCardOpacity = getStoredOverlayCardOpacity();
@@ -384,30 +395,6 @@ $effect(() => {
 				</button>
 				<button
 					class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
-					class:opacity-60={wallpaperMode !== WALLPAPER_FULLSCREEN}
-					class:bg-(--btn-regular-bg-hover)={wallpaperMode === WALLPAPER_FULLSCREEN}
-					onclick={() => switchWallpaperMode(WALLPAPER_FULLSCREEN)}
-				>
-					<Icon icon="material-symbols:wallpaper" class="text-[1.25rem] shrink-0" />
-					<span class="text-sm flex-1">{i18n(I18nKey.wallpaperFullscreen)}</span>
-					{#if wallpaperMode === WALLPAPER_FULLSCREEN}
-						<Icon icon="material-symbols:check-circle" class="text-[1rem] shrink-0 text-(--primary)" />
-					{/if}
-				</button>
-				<button
-					class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
-					class:opacity-60={wallpaperMode !== WALLPAPER_OVERLAY}
-					class:bg-(--btn-regular-bg-hover)={wallpaperMode === WALLPAPER_OVERLAY}
-					onclick={() => switchWallpaperMode(WALLPAPER_OVERLAY)}
-				>
-					<Icon icon="material-symbols:full-coverage-outline-rounded" class="text-[1.25rem] shrink-0" />
-					<span class="text-sm flex-1">{i18n(I18nKey.wallpaperOverlay)}</span>
-					{#if wallpaperMode === WALLPAPER_OVERLAY}
-						<Icon icon="material-symbols:check-circle" class="text-[1rem] shrink-0 text-(--primary)" />
-					{/if}
-				</button>
-				<button
-					class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
 					class:opacity-60={wallpaperMode !== WALLPAPER_NONE}
 					class:bg-(--btn-regular-bg-hover)={wallpaperMode === WALLPAPER_NONE}
 					onclick={() => switchWallpaperMode(WALLPAPER_NONE)}
@@ -529,7 +516,7 @@ $effect(() => {
 		</div>
 	{/if}
 
-	{#if (wallpaperMode === WALLPAPER_BANNER || wallpaperMode === WALLPAPER_FULLSCREEN) && hasBannerSettings}
+	{#if wallpaperMode === WALLPAPER_BANNER && hasBannerSettings}
 		<div class="mt-2 mb-2">
 			<div
 				class="flex gap-2 font-bold text-lg text-neutral-900 dark:text-neutral-100 transition relative ml-3 mb-2

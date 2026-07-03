@@ -33,6 +33,15 @@ html {
   scrollbar-gutter: stable;
 }
 
+body {
+  color: var(--ink);
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    var(--page-bg);
+  background-size: 80px 80px;
+}
+
 /* 页面顶部渐变高光效果 */
 .top-gradient-highlight {
   position: fixed;
@@ -226,6 +235,10 @@ html {
 
   .card-base {
     @apply rounded-(--radius-large) overflow-hidden bg-(--card-bg) transition-colors duration-150;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.78),
+      inset 0 -1px 0 rgba(44, 42, 41, 0.025),
+      0 1px 2px rgba(37, 36, 34, 0.06);
   }
   .card-base-transparent {
     @apply rounded-(--radius-large) overflow-hidden bg-(--card-bg-transparent) backdrop-blur-sm transition-colors duration-150;
@@ -233,7 +246,7 @@ html {
 
   /* 卡片边框和微阴影效果 */
   .enable-card-border .card-base {
-    @apply transition-all duration-300 border border-(--line-divider) shadow-xs;
+    @apply transition-all duration-300 border border-(--line-divider);
   }
   .enable-card-border .card-base-transparent {
     @apply transition-all duration-300 border border-(--line-divider) shadow-xs;
