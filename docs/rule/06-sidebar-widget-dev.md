@@ -27,7 +27,6 @@ export type WidgetComponentType =
 	| "toc"
 	| "music-player"
 	| "music-sidebar" // ✅ 新增类型
-	| "pio"
 	| "site-stats"
 	| "calendar"
 	| "custom";
