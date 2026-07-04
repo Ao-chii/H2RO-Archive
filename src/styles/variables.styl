@@ -22,7 +22,26 @@ rainbow-dark = linear-gradient(to right, oklch(0.70 0.10 0), oklch(0.70 0.10 30)
   --ink #2c2a29
   --ink-soft #3f3b36
   --muted #77716a
+  --amber #e6cdb1
+  --amber-ink #6f4a2e
+  --sage #d4e0ce
+  --sage-ink #40563c
+  --red #b86b5d
+  --red-ink #9f3a2f
+  --blue #6f8ea8
+  --blue-ink #315f7d
+  --violet #8b7aa8
+  --violet-ink #5d4c7d
+  --passed-bg rgba(212, 224, 206, 0.55)
+  --running-bg rgba(230, 205, 177, 0.48)
+  --failed-bg rgba(159, 58, 47, 0.14)
+  --tool-bg rgba(49, 95, 125, 0.14)
+  --muted-bg rgba(95, 90, 82, 0.12)
+  --model-bg rgba(93, 76, 125, 0.13)
   --grid-line rgba(37, 36, 34, 0.055)
+  --font-ui "Marcellus", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif
+  --font-reading "EB Garamond", "LXGW WenKai", "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif
+  --font-code var(--font-jetbrains-mono), "JetBrains Mono", SFMono-Regular, Consolas, monospace
 
 /* An util to define variables that vary with light and dark mode */
 define(vars)
@@ -66,17 +85,18 @@ define({
   --meta-divider: rgba(44, 42, 41, 0.24) rgba(44, 42, 41, 0.24)
   --content-meta: rgba(44, 42, 41, 0.72) rgba(44, 42, 41, 0.72)
 
-  --inline-code-bg: var(--btn-regular-bg)
-  --inline-code-color: var(--btn-content)
+  --inline-code-bg: rgba(44, 42, 41, 0.075) rgba(44, 42, 41, 0.075)
+  --inline-code-color: var(--ink-soft) var(--ink-soft)
   --selection-bg: oklch(0.90 0.05 var(--hue)) oklch(0.40 0.08 var(--hue))
   --codeblock-selection: var(--selection-bg)
-  --codeblock-bg: #e6e3dc #e6e3dc
-  --codeblock-topbar-bg: #d8d2c8 #d8d2c8
+  --codeblock-bg: #eeece6 #eeece6
+  --codeblock-topbar-bg: #ded8ce #ded8ce
 
   --license-block-bg: black(0.03) var(--codeblock-bg)
 
-  --link-underline: oklch(0.93 0.04 var(--hue)) oklch(0.40 0.08 var(--hue))
-  --link-hover: oklch(0.95 0.025 var(--hue)) oklch(0.40 0.08 var(--hue))
+  --link-color: var(--blue-ink) var(--blue-ink)
+  --link-underline: rgba(49, 95, 125, 0.28) rgba(49, 95, 125, 0.28)
+  --link-hover: rgba(49, 95, 125, 0.62) rgba(49, 95, 125, 0.62)
   --link-active: oklch(0.90 0.05 var(--hue)) oklch(0.35 0.07 var(--hue))
 
   --float-panel-bg: var(--paper-panel) var(--paper-panel)
@@ -98,11 +118,11 @@ define({
   --display-light-icon: 1 0
   --display-dark-icon: 0 1
 
-  --admonitions-color-tip: oklch(0.7 0.14 180) oklch(0.75 0.14 180)
-  --admonitions-color-note: oklch(0.7 0.14 250) oklch(0.75 0.14 250)
-  --admonitions-color-important: oklch(0.7 0.14 310) oklch(0.75 0.14 310)
-  --admonitions-color-warning: oklch(0.7 0.14 60) oklch(0.75 0.14 60)
-  --admonitions-color-caution: oklch(0.6 0.2 25) oklch(0.65 0.2 25)
+  --admonitions-color-tip: var(--sage-ink) var(--sage-ink)
+  --admonitions-color-note: var(--blue-ink) var(--blue-ink)
+  --admonitions-color-important: var(--violet-ink) var(--violet-ink)
+  --admonitions-color-warning: var(--amber-ink) var(--amber-ink)
+  --admonitions-color-caution: var(--red-ink) var(--red-ink)
 
   --toc-badge-bg: oklch(0.9 0.045 var(--hue)) var(--btn-regular-bg)
   --toc-btn-hover: oklch(0.92 0.015 var(--hue)) oklch(0.22 0.02 var(--hue))

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fonts.css";
 
 /* 导入相册样式 */
 @import "./albums.css";
@@ -19,7 +20,9 @@
 
 /* Migrate from v3 config */
 @theme {
-  --font-sans: var(--font-body), var(--font-cjk), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: var(--font-ui), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: var(--font-reading), ui-serif, Georgia, serif;
+  --font-mono: var(--font-code), ui-monospace, SFMono-Regular, Consolas, monospace;
 
   --breakpoint-md: 768px;
   --breakpoint-lg: 1280px;
@@ -34,6 +37,7 @@ html {
 }
 
 body {
+  font-family: var(--font-ui);
   color: var(--ink);
   background:
     linear-gradient(var(--grid-line) 1px, transparent 1px),
@@ -563,19 +567,81 @@ body {
 
 /*剧透效果*/
 .custom-md spoiler {
-  --_spoiler-mask: var(--primary);
-  @apply hover:bg-transparent px-1 py-0.5 overflow-hidden rounded-md transition-all duration-150;
-  background-color: var(--_spoiler-mask);
+  --_spoiler-mask: color-mix(in oklch, var(--amber) 46%, var(--paper-panel) 54%);
+  --_spoiler-stroke: color-mix(in oklch, var(--amber) 68%, var(--paper-soft) 32%);
+  --_spoiler-reveal-bg: color-mix(in oklch, var(--amber) 12%, transparent);
+  position: relative;
+  z-index: 0;
+  display: inline-block;
+  margin-inline: 0.03em;
+  padding-inline: 0.16em;
+  isolation: isolate;
+  background: transparent;
   box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: color 0.18s ease;
+
+  &:before,
+  &:after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease;
+  }
+
+  &:before {
+    inset: 0.02em -0.2em 0.02em -0.18em;
+    background:
+      linear-gradient(180deg, color-mix(in oklch, white 8%, var(--_spoiler-mask)) 0%, var(--_spoiler-stroke) 50%, color-mix(in oklch, var(--amber-ink) 10%, var(--_spoiler-mask)) 100%);
+    border-radius: 4px 7px 4px 6px / 6px 4px 7px 4px;
+    clip-path: polygon(1% 15%, 100% 0, 98% 84%, 3% 100%);
+    opacity: 0.96;
+    transform: rotate(-1deg);
+  }
+
+  &:after {
+    inset: 0.58em 0.04em 0.12em -0.06em;
+    background: color-mix(in oklch, var(--amber-ink) 8%, transparent);
+    border-radius: 999px;
+    clip-path: polygon(4% 44%, 36% 35%, 70% 40%, 96% 32%, 94% 56%, 66% 64%, 34% 58%, 5% 66%);
+    opacity: 0.18;
+    transform: rotate(-1deg);
+  }
+
   &:not(:hover) {
-    color: var(--_spoiler-mask);
+    color: transparent;
     * {
-      color: var(--_spoiler-mask);
+      color: transparent;
     }
+  }
+
+  &:hover {
+    color: var(--ink-soft);
+    background-color: var(--_spoiler-reveal-bg);
+  }
+
+  &:hover * {
+    color: inherit;
+  }
+
+  &:hover:before {
+    opacity: 0.18;
+    transform: rotate(-0.45deg);
+  }
+
+  &:hover:after {
+    opacity: 0.06;
+    transform: rotate(-0.45deg);
   }
 }
 
-/* 浅色模式：使用更浅的主题色且完全不透明 */
+:root:not(.dark) .custom-md spoiler {
+  --_spoiler-mask: color-mix(in oklch, var(--amber) 46%, var(--paper-panel) 54%);
+}
+
 /* CSS-only移动端优化 - 避免JavaScript闪烁 */
 @media (width < 768px) {
   /* 移动端强制列表模式，避免初始化闪烁 */
@@ -679,7 +745,4 @@ body {
 /* 确保过渡动画平滑 */
 .post-list-container {
   transition: all 0.3s ease-in-out;
-}
-:root:not(.dark) .custom-md spoiler {
-  --_spoiler-mask: color-mix(in oklch, var(--primary) 55%, white 45%);
 }

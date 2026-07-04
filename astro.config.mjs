@@ -42,36 +42,6 @@ export default defineConfig({
 			provider: fontProviders.fontsource(),
 			styles: ["normal", "italic"],
 		},
-		{
-			name: "ZenMaruGothic-Medium",
-			cssVariable: "--font-body",
-			provider: fontProviders.local(),
-			options: {
-				variants: [
-					{
-						src: ["./src/assets/fonts/ZenMaruGothic-Medium.ttf"],
-						weight: "500",
-						style: "normal",
-					},
-				],
-			},
-			fallbacks: ["sans-serif"],
-		},
-		{
-			name: "Loli",
-			cssVariable: "--font-cjk",
-			provider: fontProviders.local(),
-			options: {
-				variants: [
-					{
-						src: ["./src/assets/fonts/loli.ttf"],
-						weight: "400",
-						style: "normal",
-					},
-				],
-			},
-			fallbacks: ["sans-serif"],
-		},
 	],
 
 	site: siteConfig.siteURL,
@@ -141,11 +111,10 @@ export default defineConfig({
 			},
 			styleOverrides: {
 				codeBackground: "var(--codeblock-bg)",
-				borderRadius: "0.75rem",
+				borderRadius: "var(--radius-large)",
 				borderColor: "none",
-				codeFontSize: "0.875rem",
-				codeFontFamily:
-					"var(--font-jetbrains-mono), SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+				codeFontSize: "0.9rem",
+				codeFontFamily: "var(--font-code)",
 				codeLineHeight: "1.5rem",
 				frames: {
 					editorBackground: "var(--codeblock-bg)",

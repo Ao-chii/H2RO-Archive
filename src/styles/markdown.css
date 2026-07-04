@@ -1,11 +1,39 @@
 @reference "tailwindcss";
 
 .custom-md {
+  --tw-prose-body: var(--ink-soft);
+  --tw-prose-headings: var(--ink);
+  --tw-prose-lead: var(--ink-soft);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--ink);
+  --tw-prose-counters: var(--muted);
+  --tw-prose-bullets: var(--primary);
+  --tw-prose-hr: var(--line-divider);
+  --tw-prose-quotes: var(--ink-soft);
+  --tw-prose-quote-borders: var(--paper-border-strong);
+  --tw-prose-captions: var(--muted);
+  --tw-prose-code: var(--inline-code-color);
+  --tw-prose-pre-code: var(--ink-soft);
+  --tw-prose-pre-bg: var(--codeblock-bg);
+  --tw-prose-th-borders: var(--line-divider);
+  --tw-prose-td-borders: var(--line-divider);
+
+  color: var(--ink-soft);
+  font-family: var(--font-reading);
+  font-size: 1.28rem;
+  line-height: 1.5;
+
   h1 {
     @apply text-3xl;
   }
 
   :is(h1, h2, h3, h4, h5, h6) {
+    color: var(--ink);
+    font-family: var(--font-reading);
+    font-weight: 580;
+    letter-spacing: 0;
+    text-wrap: pretty;
+
     .anchor {
       @apply transition -m-0.5 ms-[0.2ch] p-0.5 select-none opacity-0 no-underline;
 
@@ -21,17 +49,15 @@
 
   /* --- 链接 --- */
   a:not(.no-styling) {
-    @apply relative bg-none font-medium text-(--primary)
-        underline decoration-(--link-underline) decoration-1 decoration-dashed underline-offset-4;
+    @apply relative bg-none font-medium text-(--link-color)
+        underline decoration-(--link-underline) decoration-1 underline-offset-4;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
 
     &:hover,
     &:active {
-      @apply decoration-transparent;
-      background: var(--btn-plain-bg-hover);
-      border-bottom: 1px dashed var(--link-hover);
-      text-decoration: none;
+      text-decoration-color: var(--link-hover);
+      background: transparent;
     }
   }
 
@@ -39,19 +65,7 @@
   code {
     @apply bg-(--inline-code-bg) text-(--inline-code-color) px-1 py-0.5 rounded-md overflow-hidden;
 
-    font-family: var(
-      --ec-codeFontFml,
-      "JetBrains Mono Variable",
-      "JetBrains Mono",
-      ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Monaco,
-      Consolas,
-      "Liberation Mono",
-      "Courier New",
-      monospace
-    );
+    font-family: var(--font-code);
 
     &:before,
     &:after {
@@ -75,7 +89,13 @@
 
   /* --- 标题间距 --- */
   :is(h1, h2, h3) {
-    @apply mt-4 mb-2;
+    @apply mt-6 mb-3;
+  }
+
+  /* --- 分隔线 --- */
+  hr {
+    margin-top: 2em;
+    margin-bottom: 2em;
   }
 
   /* --- 列表 --- */
@@ -89,10 +109,14 @@
   /* --- 引用块 --- */
   blockquote {
     @apply not-italic border-transparent relative;
+    color: var(--ink-soft);
     font-weight: inherit;
 
     &:before {
-      @apply content-[''] absolute left-0 block transition bg-(--btn-regular-bg) h-full w-1 rounded-full;
+      @apply content-[''] absolute left-0 block transition h-full;
+      background: var(--primary);
+      opacity: 0.45;
+      width: 2px;
     }
 
     p:before,
@@ -139,16 +163,16 @@
 
   th,
   td {
-    @apply px-4 py-3 whitespace-nowrap;
+    @apply px-4 py-2.5 whitespace-nowrap;
     border-bottom: 1px solid var(--line-divider);
     border-right: 1px solid var(--line-divider);
     transition: none;
   }
 
   th {
-    background-color: var(--btn-regular-bg);
-    color: var(--btn-content);
-    font-weight: 600;
+    background-color: rgba(230, 205, 177, 0.22);
+    color: var(--ink);
+    font-weight: 580;
     text-align: left;
   }
 
@@ -161,10 +185,10 @@
   }
 
   tr:nth-child(even) {
-    background-color: var(--codeblock-bg);
+    background-color: rgba(44, 42, 41, 0.025);
   }
   tr:hover td {
-    background-color: var(--btn-plain-bg-hover);
+    background-color: rgba(230, 205, 177, 0.14);
     transition: none;
   }
 
@@ -210,8 +234,4 @@
 /* 外部覆盖样式 */
 .custom-md .expressive-code :is(ul, ol) li::marker {
   @apply text-inherit;
-}
-
-:root:not(.dark) .custom-md spoiler {
-  --_spoiler-mask: color-mix(in oklch, var(--primary) 55%, white 45%);
 }
