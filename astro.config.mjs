@@ -89,6 +89,7 @@ export default defineConfig({
 			},
 		}),
 		icon({
+			iconDir: "public/assets/icons",
 			include: buildIconInclude(),
 		}),
 		expressiveCode({

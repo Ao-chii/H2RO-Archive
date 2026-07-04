@@ -6,8 +6,24 @@ export const profileConfig: ProfileConfig = {
 	name: "H2RO",
 	bio: "学习、项目与公开成果的公开档案",
 	typewriter: {
-		enable: false, // 启用个人简介打字机效果
+		enable: true, // 启用个人简介打字机效果
 		speed: 80, // 打字速度（毫秒）
 	},
-	links: [],
+	links: [
+		{
+			name: "GitHub",
+			icon: "fa7-brands:github",
+			url: "https://github.com/Ao-chii",
+		},
+		{
+			name: "Email",
+			icon: "fa7-solid:envelope",
+			url: "mailto:xiaohj1230@foxmail.com",
+		},
+		{
+			name: "Bangumi",
+			icon: "bangumi",
+			url: "https://bangumi.tv/user/964582",
+		},
+	],
 };
