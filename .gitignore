@@ -9,6 +9,10 @@ plans
 # dependencies
 node_modules/
 
+# local tools
+.tools/
+/_tmp_*
+
 # logs
 npm-debug.log*
 yarn-debug.log*
