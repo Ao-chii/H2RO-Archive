@@ -3,6 +3,7 @@ class CodeBlockCollapser {
 		this.processedBlocks = new WeakSet();
 		this.observer = null;
 		this.isThemeChanging = false;
+		this.resizeTimer = null;
 		this.debug = false; // 设置为 true 启用调试日志
 		this.init();
 	}
@@ -27,6 +28,27 @@ class CodeBlockCollapser {
 		this.observePageChanges();
 		this.setupThemeChangeListener();
 		this.setupThemeOptimizerSync();
+		this.setupResizeListener();
+		this.setupFontReadyListener();
+	}
+
+	setupResizeListener() {
+		window.addEventListener("resize", () => {
+			clearTimeout(this.resizeTimer);
+			this.resizeTimer = setTimeout(() => {
+				this.refreshCodeBlocks();
+			}, 150);
+		});
+	}
+
+	setupFontReadyListener() {
+		if (!document.fonts?.ready) {
+			return;
+		}
+
+		document.fonts.ready.then(() => {
+			this.refreshCodeBlocks();
+		});
 	}
 
 	setupThemeOptimizerSync() {
@@ -154,6 +176,10 @@ class CodeBlockCollapser {
 	}
 
 	enhanceCodeBlock(codeBlock) {
+		this.updateCollapsibleState(codeBlock);
+	}
+
+	updateCollapsibleState(codeBlock) {
 		const frame = codeBlock.querySelector(".frame");
 		if (!frame) {
 			this.log("No frame found in code block, skipping");
@@ -165,6 +191,40 @@ class CodeBlockCollapser {
 			return;
 		}
 
+		const pre = frame.querySelector("pre");
+		if (!pre) {
+			this.log("No pre element found in code block, skipping");
+			return;
+		}
+
+		if (!this.shouldEnableCollapse(pre)) {
+			this.log("Code block is short enough, removing collapse feature");
+			this.disableCollapse(codeBlock);
+			return;
+		}
+
+		this.enableCollapse(codeBlock, frame);
+	}
+
+	shouldEnableCollapse(pre) {
+		return pre.scrollHeight > this.getCollapsedHeightPx() + 1;
+	}
+
+	getCollapsedHeightPx() {
+		const rootFontSize =
+			Number.parseFloat(getComputedStyle(document.documentElement).fontSize) ||
+			16;
+		const collapsedHeightRem = window.matchMedia("(width < 768px)").matches
+			? 4.5
+			: 5;
+		return collapsedHeightRem * rootFontSize;
+	}
+
+	enableCollapse(codeBlock, frame) {
+		if (codeBlock.classList.contains("collapsible")) {
+			return;
+		}
+
 		this.log("Adding collapse feature to code block");
 		codeBlock.classList.add("collapsible", "expanded");
 
@@ -172,6 +232,23 @@ class CodeBlockCollapser {
 		frame.appendChild(toggleBtn);
 
 		this.bindToggleEvents(codeBlock, toggleBtn);
+	}
+
+	disableCollapse(codeBlock) {
+		const frame = codeBlock.querySelector(".frame");
+		const toggleBtn = frame?.querySelector(".collapse-toggle-btn");
+		toggleBtn?.remove();
+		codeBlock.classList.remove("collapsible", "collapsed", "expanded");
+	}
+
+	refreshCodeBlocks() {
+		requestAnimationFrame(() => {
+			const codeBlocks = document.querySelectorAll(".expressive-code");
+			codeBlocks.forEach((codeBlock) => {
+				this.updateCollapsibleState(codeBlock);
+				this.processedBlocks.add(codeBlock);
+			});
+		});
 	}
 
 	createToggleButton() {

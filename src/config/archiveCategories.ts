@@ -14,32 +14,38 @@ export interface ArchiveCategory {
 export const archiveCategories: ArchiveCategory[] = [
 	{
 		slug: "study",
-		name: "学习",
-		kicker: "01 / STUDY",
+		name: "课内学习",
+		kicker: "01 / COURSE-STUDY",
 		icon: "material-symbols:school",
 	},
 	{
+		slug: "self-study",
+		name: "课外学习",
+		kicker: "02 / SELF-STUDY",
+		icon: "material-symbols:menu-book",
+	},
+	{
 		slug: "life",
-		name: "生活",
-		kicker: "02 / LIFE",
-		icon: "material-symbols:book",
+		name: "随笔",
+		kicker: "03 / LIFE",
+		icon: "material-symbols:edit-note",
 	},
 	{
 		slug: "project",
 		name: "项目",
-		kicker: "03 / PROJECT",
+		kicker: "04 / PROJECT",
 		icon: "material-symbols:work",
 	},
 	{
 		slug: "game",
 		name: "游戏",
-		kicker: "04 / GAME",
+		kicker: "05 / GAME",
 		icon: "solar:gamepad-bold",
 	},
 	{
 		slug: "reading",
 		name: "读书",
-		kicker: "05 / READING",
+		kicker: "06 / READING",
 		icon: "material-symbols:article",
 	},
 ];

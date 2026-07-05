@@ -1,6 +1,7 @@
 ---
 // 分类浏览页 /archive/<slug>/ —— 纸墨"对象索引页"
 // 列出该分类下全部内容(md + pdf),pdf 额外带类型标签
+import CategoryBar from "@components/features/posts/CategoryBar.astro";
 import { archiveCategories } from "@/config/archiveCategories";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPostsList } from "@utils/content-utils";
@@ -24,6 +25,7 @@ const posts = (await getSortedPostsList()).filter(
 	<script>
 		import("../../scripts/right-sidebar-layout.js");
 	</script>
+	<CategoryBar />
 	<div class="card-base w-full px-6 py-6 md:px-9 md:py-8">
 		<header class="cat-header">
 			<div class="kicker">{cat.kicker}</div>

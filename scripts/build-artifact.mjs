@@ -13,6 +13,7 @@ import {
 	writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import sharp from "sharp";
 
 const slug = process.argv[2];
@@ -30,9 +31,33 @@ if (!existsSync(pdf)) {
 	process.exit(1);
 }
 
+async function removeGeneratedPath(target, options = {}) {
+	const { required = true, ...rmOptions } = options;
+	for (let i = 0; i < 50; i += 1) {
+		try {
+			rmSync(target, { force: true, ...rmOptions });
+			return true;
+		} catch (error) {
+			if (
+				error?.code !== "EPERM" &&
+				error?.code !== "EBUSY" &&
+				error?.code !== "ENOTEMPTY"
+			) {
+				throw error;
+			}
+			await delay(200);
+		}
+	}
+	if (!required) {
+		return false;
+	}
+	rmSync(target, { force: true, ...rmOptions });
+	return true;
+}
+
 const previewDir = join(dir, "preview");
 // 清掉旧产物,避免残留导致页数错乱
-rmSync(previewDir, { recursive: true, force: true });
+await removeGeneratedPath(previewDir, { recursive: true });
 mkdirSync(previewDir, { recursive: true });
 
 // 1. pdftocairo 逐页渲染成 png(150dpi)
@@ -41,7 +66,7 @@ execFileSync("pdftocairo", ["-png", "-r", "150", pdf, join(previewDir, "raw")], 
 	stdio: "inherit",
 });
 
-// 2. 按页码自然排序,统一转成 p-NN.webp(补零 2 位),删掉中间 png
+// 2. 按页码自然排序,统一转成 p-NN.webp(补零 2 位)
 const pngs = readdirSync(previewDir)
 	.filter((f) => f.endsWith(".png"))
 	.sort((a, b) => {
@@ -55,10 +80,23 @@ for (const png of pngs) {
 	n += 1;
 	const out = join(previewDir, `p-${String(n).padStart(2, "0")}.webp`);
 	await sharp(join(previewDir, png)).webp({ quality: 82 }).toFile(out);
-	rmSync(join(previewDir, png));
 }
 
-// 3. 写 manifest.json(页数 / 大小 / 来源)
+const cleanupFailures = [];
+if (process.platform === "win32") {
+	cleanupFailures.push(...pngs);
+} else {
+	// 3. 清理中间 png。清理失败不应阻断 manifest。
+	await delay(500);
+	for (const png of pngs) {
+		const removed = await removeGeneratedPath(join(previewDir, png), {
+			required: false,
+		});
+		if (!removed) cleanupFailures.push(png);
+	}
+}
+
+// 4. 写 manifest.json(页数 / 大小 / 来源)
 const bytes = statSync(pdf).size;
 const size =
 	bytes >= 1024 * 1024
@@ -74,3 +112,8 @@ writeFileSync(join(dir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\
 
 console.log(`\n完成: ${n} 页 → ${previewDir}`);
 console.log(`manifest: ${JSON.stringify(manifest)}`);
+if (cleanupFailures.length > 0) {
+	console.warn(
+		`临时 PNG 有 ${cleanupFailures.length} 个未能自动删除,请稍后手动清理 ${previewDir}/raw-*.png`,
+	);
+}

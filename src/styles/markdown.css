@@ -89,13 +89,13 @@
 
   /* --- 标题间距 --- */
   :is(h1, h2, h3) {
-    @apply mt-6 mb-3;
+    @apply mt-10 mb-4;
   }
 
   /* --- 分隔线 --- */
   hr {
-    margin-top: 2em;
-    margin-bottom: 2em;
+    margin-top: 2.5em;
+    margin-bottom: 2.5em;
   }
 
   /* --- 列表 --- */
@@ -193,8 +193,13 @@
   }
 
   /* --- 数学公式样式 --- */
+  .katex {
+    font-size: 1em;
+  }
+
   .katex-display {
     @apply w-full overflow-x-auto overflow-y-hidden box-border my-4;
+    font-size: 0.95em;
     padding-bottom: 6px;
     padding-top: 0.5rem;
     -webkit-overflow-scrolling: touch;
@@ -220,6 +225,7 @@
 
   .katex-display > .katex {
     display: block;
+    font-size: 1em;
     width: fit-content;
     min-width: calc(100% - 2px);
   }

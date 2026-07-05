@@ -4,6 +4,7 @@
 // <slot /> 为文档说明(来自 post 正文 markdown)
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import Markdown from "@components/misc/Markdown.astro";
 import { categoryName } from "@/config/archiveCategories";
 import { formatDateToYYYYMMDD } from "@utils/date-utils";
 
@@ -69,10 +70,21 @@ const manifestPath = join(
 );
 const manifest = readManifest(manifestPath) ?? emptyManifest;
 const hasPreview = manifest.pages > 0;
+const collapseThreshold = 30;
+const initialPreviewPages = 5;
+const shouldCollapsePreview = manifest.pages > collapseThreshold;
+const visiblePreviewPages = shouldCollapsePreview
+	? Math.min(initialPreviewPages, manifest.pages)
+	: manifest.pages;
 
 const pages = Array.from({ length: manifest.pages }, (_, i) => {
-	const n = String(i + 1).padStart(2, "0");
-	return { src: `/artifacts/${slug}/preview/p-${n}.webp`, label: `p.${n}` };
+	const pageNo = i + 1;
+	const fileNo = String(pageNo).padStart(2, "0");
+	return {
+		src: `/artifacts/${slug}/preview/p-${fileNo}.webp`,
+		label: `p.${pageNo}`,
+		isCollapsed: shouldCollapsePreview && i >= visiblePreviewPages,
+	};
 });
 
 const originalHref = `/artifacts/${slug}/original.pdf`;
@@ -81,33 +93,24 @@ const categoryLabel = categoryName(category);
 ---
 
 <div class="artifact-preview">
-	<!-- ① 档案头 -->
-	<header class="artifact-header">
-		<div class="kicker">ARTIFACT · DOCUMENT</div>
-		<h1 class="title">{title}</h1>
-		<div class="meta-line">
-			<span>PDF</span>
-			<span class="dot">·</span>
-			<span>{manifest.pages} 页</span>
-			<span class="dot">·</span>
-			<span>{manifest.size}</span>
-			<span class="dot">·</span>
-			<span>更新 {updatedStr}</span>
-			{categoryLabel && <span class="dot">·</span>}
-			{categoryLabel && <span>{categoryLabel}</span>}
-			<span class="dot">·</span>
-			<span class="status">已公开</span>
-		</div>
-		<div class="note"><slot /></div>
-	</header>
+	<Markdown class="mb-6 markdown-content onload-animation">
+		<slot />
+	</Markdown>
 
 	<hr class="rule" />
 
 	{
 		hasPreview ? (
-			<section class="preview-surface">
+			<section class="preview-surface" data-pdf-preview data-expanded="false">
 				{pages.map((page) => (
-					<figure class="artifact-page">
+					<figure
+						class:list={[
+							"artifact-page",
+							page.isCollapsed && "is-collapsed-page",
+						]}
+						data-pdf-collapsed-page={page.isCollapsed ? "true" : undefined}
+						hidden={page.isCollapsed ? true : undefined}
+					>
 						<img
 							src={page.src}
 							alt={`${title} ${page.label}`}
@@ -119,6 +122,28 @@ const categoryLabel = categoryName(category);
 						<figcaption class="page-no">{page.label}</figcaption>
 					</figure>
 				))}
+				{shouldCollapsePreview && (
+					<div class="preview-more">
+						<p
+							class="preview-hint"
+							data-pdf-preview-status
+							data-collapsed-label={`已显示前 ${visiblePreviewPages} 页，完整文件共 ${manifest.pages} 页。`}
+							data-expanded-label={`已显示全部 ${manifest.pages} 页。`}
+						>
+							已显示前 {visiblePreviewPages} 页，完整文件共 {manifest.pages} 页。
+						</p>
+						<button
+							type="button"
+							class="preview-toggle"
+							aria-expanded="false"
+							data-pdf-preview-toggle
+							data-expand-label={`查看全部 ${manifest.pages} 页预览`}
+							data-collapse-label={`收起预览，仅显示前 ${visiblePreviewPages} 页`}
+						>
+							查看全部 {manifest.pages} 页预览
+						</button>
+					</div>
+				)}
 			</section>
 		) : (
 			<section class="empty-state">
@@ -144,55 +169,69 @@ const categoryLabel = categoryName(category);
 	</footer>
 </div>
 
-<style>
-	/* 档案头 */
-	.artifact-header {
-		margin-bottom: 1.25rem;
-	}
-	.kicker {
-		font-family: var(--font-code);
-		font-size: 11px;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--muted);
-	}
-	.title {
-		margin: 0.4rem 0 0.5rem;
-		font-family: var(--font-reading);
-		font-size: clamp(30px, 4vw, 44px);
-		line-height: 1.1;
-		font-weight: 580;
-		color: var(--ink);
-	}
-	.meta-line {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.4rem;
-		font-family: var(--font-code);
-		font-size: 12px;
-		color: var(--muted);
-	}
-	.meta-line .dot {
-		opacity: 0.5;
-	}
-	.meta-line .status {
-		padding: 2px 8px;
-		border-radius: 999px;
-		color: var(--sage-ink);
-		background: var(--passed-bg);
-	}
-	.note {
-		margin: 0.75rem 0 0;
-		font-family: var(--font-reading);
-		font-size: 1.05rem;
-		line-height: 1.65;
-		color: var(--ink-soft);
-	}
-	.note:empty {
-		display: none;
+<script>
+	function initPdfPreviewToggles() {
+		document.querySelectorAll<HTMLElement>("[data-pdf-preview]").forEach((surface) => {
+			if (surface.dataset.pdfToggleReady === "true") return;
+
+			const buttons = Array.from(
+				surface.querySelectorAll<HTMLButtonElement>("[data-pdf-preview-toggle]"),
+			);
+			const collapsedPages = Array.from(
+				surface.querySelectorAll<HTMLElement>('[data-pdf-collapsed-page="true"]'),
+			);
+			const status = surface.querySelector<HTMLElement>(
+				"[data-pdf-preview-status]",
+			);
+
+			if (buttons.length === 0 || collapsedPages.length === 0) return;
+
+			surface.dataset.pdfToggleReady = "true";
+
+			const setExpanded = (expanded: boolean) => {
+				surface.dataset.expanded = String(expanded);
+				collapsedPages.forEach((page) => {
+					page.hidden = !expanded;
+				});
+
+				buttons.forEach((button) => {
+					const expandLabel = button.dataset.expandLabel || "展开全部预览";
+					const collapseLabel = button.dataset.collapseLabel || "收起预览";
+					button.textContent = expanded ? collapseLabel : expandLabel;
+					button.setAttribute("aria-expanded", String(expanded));
+				});
+
+				if (status) {
+					const collapsedLabel = status.dataset.collapsedLabel || "";
+					const expandedLabel = status.dataset.expandedLabel || "";
+					status.textContent = expanded ? expandedLabel : collapsedLabel;
+				}
+			};
+
+			setExpanded(false);
+
+			buttons.forEach((button) => {
+				button.addEventListener("click", () => {
+					const expanded = surface.dataset.expanded === "true";
+					setExpanded(!expanded);
+				});
+			});
+		});
 	}
 
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", initPdfPreviewToggles, {
+			once: true,
+		});
+	} else {
+		initPdfPreviewToggles();
+	}
+
+	document.addEventListener("astro:page-load", initPdfPreviewToggles);
+	document.addEventListener("swup:content:replace", initPdfPreviewToggles);
+</script>
+
+<style>
 	/* 细分隔线 */
 	.rule {
 		border: none;
@@ -207,6 +246,58 @@ const categoryLabel = categoryName(category);
 		align-items: center;
 		gap: 1.5rem;
 		padding: 0.5rem 0;
+	}
+	.preview-more {
+		display: flex;
+		width: 100%;
+		max-width: 720px;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		box-sizing: border-box;
+		margin-top: -0.25rem;
+		padding: 0.85rem 1rem;
+		border: 1px solid var(--paper-border-strong);
+		border-radius: 8px;
+		background: rgba(255, 253, 248, 0.72);
+	}
+	.preview-hint {
+		margin: 0;
+		font-family: var(--font-code);
+		font-size: 12px;
+		line-height: 1.5;
+		color: var(--muted);
+	}
+	.preview-toggle {
+		display: inline-flex;
+		flex: 0 0 auto;
+		align-items: center;
+		justify-content: center;
+		min-height: 38px;
+		padding: 8px 16px;
+		border: 1px solid var(--paper-border-strong);
+		border-radius: 6px;
+		background: var(--btn-regular-bg);
+		color: var(--ink);
+		font-family: var(--font-ui);
+		font-size: 14px;
+		font-weight: 600;
+		line-height: 1.4;
+		cursor: pointer;
+		box-shadow: none;
+		transition:
+			background var(--motion-base, 180ms) ease,
+			border-color var(--motion-base, 180ms) ease,
+			color var(--motion-base, 180ms) ease;
+	}
+	.preview-toggle:hover {
+		border-color: color-mix(in oklab, var(--paper-border-strong) 65%, var(--primary));
+		background: var(--btn-regular-bg-hover);
+		color: var(--amber-ink);
+	}
+	.preview-toggle:focus-visible {
+		outline: 2px solid color-mix(in oklab, var(--primary) 35%, transparent);
+		outline-offset: 3px;
 	}
 
 	/* 每一页 = 一张校样纸,融入纸面(白底 multiply 落到 #f8f5f1) */
@@ -243,6 +334,9 @@ const categoryLabel = categoryName(category);
 		background: rgba(248, 245, 241, 0.85);
 		padding: 1px 6px;
 		border-radius: 4px;
+	}
+	.artifact-page[hidden] {
+		display: none;
 	}
 
 	/* 空状态(预览未生成) */
@@ -316,6 +410,13 @@ const categoryLabel = categoryName(category);
 	@media (max-width: 640px) {
 		.fields {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.preview-more {
+			align-items: stretch;
+			flex-direction: column;
+		}
+		.preview-toggle {
+			width: 100%;
 		}
 	}
 </style>
