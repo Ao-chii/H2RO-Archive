@@ -21,6 +21,7 @@ const {
 	updated,
 	tags,
 	category,
+	docType,
 	image,
 	description,
 	hideHomeContent,
@@ -92,6 +93,8 @@ const homeContent = getPostHomeContent(
 				name="material-symbols:chevron-right-rounded"
 			/>
 		</a>
+
+		{docType === "pdf" && <span class="pdf-badge">PDF</span>}
 
 		<PostMetadata
 			published={published}
@@ -193,4 +196,16 @@ const homeContent = getPostHomeContent(
 >
 </div>
 
-<style define:vars={{ coverWidth }}></style>
+<style define:vars={{ coverWidth }}>
+	.pdf-badge {
+		display: inline-block;
+		margin-bottom: 0.6rem;
+		padding: 1px 8px;
+		border-radius: 999px;
+		background: var(--tool-bg);
+		color: var(--blue-ink);
+		font-family: var(--font-code);
+		font-size: 11px;
+		letter-spacing: 0.04em;
+	}
+</style>

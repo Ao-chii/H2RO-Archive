@@ -4,10 +4,10 @@ import { i18n } from "@i18n/translation";
 import { Icon } from "astro-icon/components";
 
 import { getCategoryList, getSortedPostsList } from "@/utils/content-utils";
-import { getCategoryUrl, url } from "@/utils/url-utils";
+import { url } from "@/utils/url-utils";
 
-const categories = await getCategoryList();
 const totalPosts = (await getSortedPostsList()).length;
+const categories = await getCategoryList();
 const homeUrl = url("/");
 const archiveUrl = url("/archive/");
 ---
@@ -44,10 +44,10 @@ const archiveUrl = url("/archive/");
 				{
 					categories.map((cat) => (
 						<a
-							href={getCategoryUrl(cat.name)}
+							href={cat.url}
 							class="category-pill text-sm px-3 py-1 rounded-lg whitespace-nowrap
 								   transition-colors duration-200 flex items-center justify-center"
-							data-category-name={cat.name}
+							data-category-slug={cat.slug}
 						>
 							{cat.name}
 							<span class="text-xs opacity-60 ml-1">
@@ -149,6 +149,9 @@ const archiveUrl = url("/archive/");
 		const isHome =
 			pathname === homePath || pathname === "" || pathname === "/";
 		const isArchive = pathname === archivePath;
+		const archiveCategoryPrefix =
+			archivePath === "" ? "/archive/" : `${archivePath}/`;
+		const isArchiveCategory = pathname.startsWith(archiveCategoryPrefix);
 		// 分页页面（如 /2/, /3/）也属于首页的延续
 		const isHomePagination =
 			/^\/\d+$/.test(pathname) ||
@@ -156,11 +159,11 @@ const archiveUrl = url("/archive/");
 				new RegExp(
 					"^" +
 						homePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") +
-						"\\/\\d+$",
+					"\\/\\d+$",
 				).test(pathname));
 
 		// 在首页、首页分页和归档页显示
-		if (!isHome && !isHomePagination && !isArchive) {
+		if (!isHome && !isHomePagination && !isArchive && !isArchiveCategory) {
 			bar.style.display = "none";
 			return;
 		}
@@ -169,7 +172,11 @@ const archiveUrl = url("/archive/");
 		// 高亮当前分类
 		const pills = bar.querySelectorAll<HTMLAnchorElement>(".category-pill");
 		const params = new URLSearchParams(window.location.search);
-		const activeCategory = params.get("category") || "";
+		const activeCategory =
+			params.get("category") ||
+			(isArchiveCategory
+				? decodeURIComponent(pathname.slice(archiveCategoryPrefix.length))
+				: "");
 		const hasTag = params.has("tag");
 		const hasUncategorized = params.has("uncategorized");
 
@@ -182,7 +189,7 @@ const archiveUrl = url("/archive/");
 		} else if (activeCategory) {
 			pills.forEach((pill) => {
 				if (
-					pill.getAttribute("data-category-name") === activeCategory
+					pill.getAttribute("data-category-slug") === activeCategory
 				) {
 					pill.setAttribute("data-active", "");
 				}

@@ -18,6 +18,7 @@ import {
 } from "@components/features/posts";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
+import PdfPreview from "@components/features/artifacts/PdfPreview.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
@@ -233,6 +234,16 @@ const jsonLd = {
 							<Content />
 						</Markdown>
 					</Encryptor>
+				) : entry.data.docType === "pdf" ? (
+					<PdfPreview
+						slug={entry.id.replace(/\.(md|mdx)$/, "")}
+						title={entry.data.title}
+						category={entry.data.category}
+						updated={entry.data.updated}
+						published={entry.data.published}
+					>
+						<Content />
+					</PdfPreview>
 				) : (
 					<>
 						<Markdown class="mb-6 markdown-content onload-animation">

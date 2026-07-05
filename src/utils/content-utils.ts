@@ -1,8 +1,7 @@
 import { type CollectionEntry, getCollection } from "astro:content";
-import I18nKey from "@i18n/i18nKey";
-import { i18n } from "@i18n/translation";
 import { initPostIdMap } from "@utils/permalink-utils";
 import { getCategoryUrl, getPostUrl } from "@utils/url-utils";
+import { archiveCategories } from "@/config/archiveCategories";
 
 // // Retrieve posts and sort them by publication date
 async function getRawSortedPosts() {
@@ -105,9 +104,11 @@ export async function getTagList(): Promise<Tag[]> {
 }
 
 export interface Category {
+	slug: string;
 	name: string;
 	count: number;
 	url: string;
+	icon?: string;
 }
 
 export async function getCategoryList(): Promise<Category[]> {
@@ -115,34 +116,31 @@ export async function getCategoryList(): Promise<Category[]> {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
 	const count: Record<string, number> = {};
-	allBlogPosts.forEach((post: { data: { category: string | null } }) => {
-		if (!post.data.category) {
-			const ucKey = i18n(I18nKey.uncategorized);
-			count[ucKey] = count[ucKey] ? count[ucKey] + 1 : 1;
-			return;
-		}
 
-		const categoryName =
+	for (const category of archiveCategories) {
+		count[category.slug] = 0;
+	}
+
+	allBlogPosts.forEach((post: { data: { category: string | null } }) => {
+		const slug =
 			typeof post.data.category === "string"
 				? post.data.category.trim()
-				: String(post.data.category).trim();
+				: "";
 
-		count[categoryName] = count[categoryName] ? count[categoryName] + 1 : 1;
+		if (slug in count) {
+			count[slug] += 1;
+		}
 	});
 
-	const lst = Object.keys(count).sort((a, b) => {
-		return a.toLowerCase().localeCompare(b.toLowerCase());
-	});
-
-	const ret: Category[] = [];
-	for (const c of lst) {
-		ret.push({
-			name: c,
-			count: count[c],
-			url: getCategoryUrl(c),
-		});
-	}
-	return ret;
+	return archiveCategories
+		.map((category) => ({
+			slug: category.slug,
+			name: category.name,
+			count: count[category.slug] ?? 0,
+			url: getCategoryUrl(category.slug),
+			icon: category.icon,
+		}))
+		.filter((category) => category.count > 0);
 }
 
 /**

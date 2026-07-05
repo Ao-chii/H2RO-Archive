@@ -15,6 +15,7 @@ import {
 import { ReadingTime, WordCount } from "@components/features/posts/atoms";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
+import PdfPreview from "@components/features/artifacts/PdfPreview.astro";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getRelatedPosts, getSortedPosts } from "@utils/content-utils";
 import { hasCustomPermalink, initPostIdMap } from "@utils/permalink-utils";
@@ -321,6 +322,16 @@ const jsonLd = {
 							<Content />
 						</Markdown>
 					</Encryptor>
+				) : entry.data.docType === "pdf" ? (
+					<PdfPreview
+						slug={entry.id.replace(/\.(md|mdx)$/, "")}
+						title={entry.data.title}
+						category={entry.data.category}
+						updated={entry.data.updated}
+						published={entry.data.published}
+					>
+						<Content />
+					</PdfPreview>
 				) : (
 					<Markdown class="mb-6 markdown-content onload-animation">
 						<Content />

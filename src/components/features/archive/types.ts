@@ -1,6 +1,6 @@
 export interface ArchivePanelProps {
-	tags: string[];
-	categories: string[];
+	tags?: string[];
+	categories?: string[];
 	sortedPosts: Post[];
 }
 

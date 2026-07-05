@@ -1,6 +1,7 @@
 import type { CollectionEntry } from "astro:content";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import { getArchiveCategory } from "@/config/archiveCategories";
 
 import { permalinkConfig } from "../config";
 import { generatePermalinkSlug } from "./permalink-utils";
@@ -72,14 +73,19 @@ export function getTagUrl(tag: string): string {
 }
 
 export function getCategoryUrl(category: string | null): string {
+	const slug = category?.trim() ?? "";
 	if (
-		!category ||
-		category.trim() === "" ||
-		category.trim().toLowerCase() === i18n(I18nKey.uncategorized).toLowerCase()
+		!slug ||
+		slug.toLowerCase() === i18n(I18nKey.uncategorized).toLowerCase()
 	) {
 		return url("/archive/?uncategorized=true");
 	}
-	return url(`/archive/?category=${encodeURIComponent(category.trim())}`);
+
+	if (getArchiveCategory(slug)) {
+		return url(`/archive/${slug}/`);
+	}
+
+	return url(`/archive/?category=${encodeURIComponent(slug)}`);
 }
 
 export function getDir(path: string): string {

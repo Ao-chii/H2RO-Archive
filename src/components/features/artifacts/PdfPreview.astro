@@ -1,0 +1,321 @@
+---
+// PDF 逐页预览组件 —— 融入纸面(multiply → #f8f5f1),纸墨档案外壳
+// 页数/大小构建时从 public/artifacts/<slug>/manifest.json 读取
+// <slot /> 为文档说明(来自 post 正文 markdown)
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { categoryName } from "@/config/archiveCategories";
+import { formatDateToYYYYMMDD } from "@utils/date-utils";
+
+interface Props {
+	slug: string;
+	title: string;
+	category?: string | null;
+	updated?: Date;
+	published: Date;
+}
+
+interface PdfManifest {
+	pages: number;
+	size: string;
+	source: string;
+}
+
+const { slug, title, category, updated, published } = Astro.props;
+
+const emptyManifest: PdfManifest = {
+	pages: 0,
+	size: "未知",
+	source: "未知",
+};
+
+function normalizeManifest(value: unknown): PdfManifest | null {
+	if (!value || typeof value !== "object") return null;
+
+	const data = value as Record<string, unknown>;
+	if (!Number.isInteger(data.pages) || (data.pages as number) <= 0) {
+		return null;
+	}
+
+	return {
+		pages: data.pages as number,
+		size:
+			typeof data.size === "string" && data.size.trim()
+				? data.size
+				: "未知",
+		source:
+			typeof data.source === "string" && data.source.trim()
+				? data.source
+				: "original.pdf",
+	};
+}
+
+function readManifest(path: string): PdfManifest | null {
+	if (!existsSync(path)) return null;
+
+	try {
+		return normalizeManifest(JSON.parse(readFileSync(path, "utf-8")));
+	} catch {
+		return null;
+	}
+}
+
+const manifestPath = join(
+	process.cwd(),
+	"public",
+	"artifacts",
+	slug,
+	"manifest.json",
+);
+const manifest = readManifest(manifestPath) ?? emptyManifest;
+const hasPreview = manifest.pages > 0;
+
+const pages = Array.from({ length: manifest.pages }, (_, i) => {
+	const n = String(i + 1).padStart(2, "0");
+	return { src: `/artifacts/${slug}/preview/p-${n}.webp`, label: `p.${n}` };
+});
+
+const originalHref = `/artifacts/${slug}/original.pdf`;
+const updatedStr = formatDateToYYYYMMDD(updated || published);
+const categoryLabel = categoryName(category);
+---
+
+<div class="artifact-preview">
+	<!-- ① 档案头 -->
+	<header class="artifact-header">
+		<div class="kicker">ARTIFACT · DOCUMENT</div>
+		<h1 class="title">{title}</h1>
+		<div class="meta-line">
+			<span>PDF</span>
+			<span class="dot">·</span>
+			<span>{manifest.pages} 页</span>
+			<span class="dot">·</span>
+			<span>{manifest.size}</span>
+			<span class="dot">·</span>
+			<span>更新 {updatedStr}</span>
+			{categoryLabel && <span class="dot">·</span>}
+			{categoryLabel && <span>{categoryLabel}</span>}
+			<span class="dot">·</span>
+			<span class="status">已公开</span>
+		</div>
+		<div class="note"><slot /></div>
+	</header>
+
+	<hr class="rule" />
+
+	{
+		hasPreview ? (
+			<section class="preview-surface">
+				{pages.map((page) => (
+					<figure class="artifact-page">
+						<img
+							src={page.src}
+							alt={`${title} ${page.label}`}
+							loading="lazy"
+							decoding="async"
+							width="595"
+							height="842"
+						/>
+						<figcaption class="page-no">{page.label}</figcaption>
+					</figure>
+				))}
+			</section>
+		) : (
+			<section class="empty-state">
+				<p>[ 预览未生成 ]</p>
+				<p class="mono">missing_source: pdf_preview · run `pnpm artifact {slug}`</p>
+			</section>
+		)
+	}
+
+	<hr class="rule" />
+
+	<!-- ③ 元信息板 + 下载原件 -->
+	<footer class="meta-board">
+		<dl class="fields">
+			<div><dt>类型</dt><dd>PDF</dd></div>
+			<div><dt>页数</dt><dd>{manifest.pages}</dd></div>
+			<div><dt>大小</dt><dd>{manifest.size}</dd></div>
+			<div><dt>分类</dt><dd>{categoryLabel || "—"}</dd></div>
+			<div><dt>来源</dt><dd>{manifest.source}</dd></div>
+			<div><dt>更新</dt><dd>{updatedStr}</dd></div>
+		</dl>
+		<a class="download" href={originalHref} download>⬇ 下载原文件</a>
+	</footer>
+</div>
+
+<style>
+	/* 档案头 */
+	.artifact-header {
+		margin-bottom: 1.25rem;
+	}
+	.kicker {
+		font-family: var(--font-code);
+		font-size: 11px;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+	.title {
+		margin: 0.4rem 0 0.5rem;
+		font-family: var(--font-reading);
+		font-size: clamp(30px, 4vw, 44px);
+		line-height: 1.1;
+		font-weight: 580;
+		color: var(--ink);
+	}
+	.meta-line {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.4rem;
+		font-family: var(--font-code);
+		font-size: 12px;
+		color: var(--muted);
+	}
+	.meta-line .dot {
+		opacity: 0.5;
+	}
+	.meta-line .status {
+		padding: 2px 8px;
+		border-radius: 999px;
+		color: var(--sage-ink);
+		background: var(--passed-bg);
+	}
+	.note {
+		margin: 0.75rem 0 0;
+		font-family: var(--font-reading);
+		font-size: 1.05rem;
+		line-height: 1.65;
+		color: var(--ink-soft);
+	}
+	.note:empty {
+		display: none;
+	}
+
+	/* 细分隔线 */
+	.rule {
+		border: none;
+		border-top: 1px solid var(--line-divider);
+		margin: 1.25rem 0;
+	}
+
+	/* 预览区:逐页堆叠,居中 */
+	.preview-surface {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1.5rem;
+		padding: 0.5rem 0;
+	}
+
+	/* 每一页 = 一张校样纸,融入纸面(白底 multiply 落到 #f8f5f1) */
+	.artifact-page {
+		position: relative;
+		margin: 0;
+		width: 100%;
+		max-width: 720px;
+		border: 1px solid var(--paper-border-strong);
+		border-radius: 4px;
+		background-color: #f8f5f1;
+		box-shadow:
+			inset 0 1px 0 rgba(255, 255, 255, 0.8),
+			inset 0 -1px 0 rgba(44, 42, 41, 0.03),
+			0 1px 3px rgba(37, 36, 34, 0.08);
+	}
+	.artifact-page img {
+		display: block;
+		width: 100%;
+		height: auto;
+		border-radius: 3px;
+		mix-blend-mode: multiply;
+	}
+
+	/* 页码:mono,压在纸右下角 */
+	.page-no {
+		position: absolute;
+		right: 10px;
+		bottom: 8px;
+		font-family: var(--font-code);
+		font-size: 11px;
+		letter-spacing: 0.04em;
+		color: var(--muted);
+		background: rgba(248, 245, 241, 0.85);
+		padding: 1px 6px;
+		border-radius: 4px;
+	}
+
+	/* 空状态(预览未生成) */
+	.empty-state {
+		border: 1px dashed var(--paper-border-strong);
+		border-radius: 8px;
+		padding: 2rem 1rem;
+		text-align: center;
+		color: var(--muted);
+		font-family: var(--font-reading);
+	}
+	.empty-state .mono {
+		margin-top: 0.5rem;
+		font-family: var(--font-code);
+		font-size: 12px;
+	}
+
+	/* 元信息板 */
+	.meta-board {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+	.fields {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.6rem 1.5rem;
+		margin: 0;
+	}
+	.fields div {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+	.fields dt {
+		font-family: var(--font-code);
+		font-size: 10px;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+	.fields dd {
+		margin: 0;
+		font-family: var(--font-code);
+		font-size: 13px;
+		color: var(--ink);
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* 下载原件按钮 */
+	.download {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 8px 16px;
+		border: 1px solid var(--paper-border-strong);
+		border-radius: 6px;
+		background: var(--btn-regular-bg);
+		color: var(--amber-ink);
+		font-family: var(--font-ui);
+		font-size: 14px;
+		text-decoration: none;
+		transition: background var(--motion-base, 180ms) ease;
+	}
+	.download:hover {
+		background: var(--btn-regular-bg-hover);
+	}
+
+	@media (max-width: 640px) {
+		.fields {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+</style>

@@ -2,7 +2,7 @@ import type { PermalinkConfig } from "../types/config";
 
 // Permalink 固定链接配置
 export const permalinkConfig: PermalinkConfig = {
-	enable: false, // 是否启用全局 permalink 功能，关闭时使用默认的文件名作为链接
+	enable: true, // 是否启用全局 permalink 功能，关闭时使用默认的文件名作为链接
 	/**
 	 * permalink 格式模板
 	 * 支持的占位符：
@@ -25,5 +25,5 @@ export const permalinkConfig: PermalinkConfig = {
 	 *
 	 * 注意：支持使用斜杠 "/" 构建嵌套路径。
 	 */
-	format: "%postname%", // 默认使用文件名
+	format: "%category%/%postname%", // 分类/标题:/study/chapter-1-intro/
 };

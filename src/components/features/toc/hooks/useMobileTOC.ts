@@ -92,8 +92,18 @@ export function generatePostItems(): PostItem[] {
 	const items: PostItem[] = [];
 
 	postCards.forEach((card) => {
-		const titleLink = card.querySelector('a[href*="/posts/"].transition.group');
-		const categoryLink = card.querySelector('a[href*="/categories/"].link-lg');
+		const titleLink = card.querySelector("a.transition.group");
+		const categoryLink = Array.from(
+			card.querySelectorAll<HTMLAnchorElement>("a.link-lg"),
+		).find((link) => {
+			const href = link.getAttribute("href") || "";
+			try {
+				const target = new URL(href, window.location.origin);
+				return target.pathname.includes("/archive/") && target.search === "";
+			} catch {
+				return href.includes("/archive/") && !href.includes("?");
+			}
+		});
 		const pinnedIcon = titleLink?.querySelector('svg[data-icon="mdi:pin"]');
 
 		if (titleLink) {

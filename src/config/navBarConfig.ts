@@ -1,4 +1,5 @@
-import type { NavBarConfig } from "../types/config";
+import { archiveCategories } from "./archiveCategories";
+import type { NavBarConfig, NavBarLink } from "../types/config";
 import { LinkPreset } from "../types/config";
 
 /**
@@ -126,6 +127,19 @@ import { LinkPreset } from "../types/config";
  * 4. 导航栏在移动端会自动收拢为汉堡菜单，子菜单以折叠面板形式展示。
  * 5. links 数组的顺序即为导航栏从左到右的显示顺序。
  */
+const archiveNavChildren: NavBarLink[] = [
+	{
+		name: "全部档案",
+		url: "/archive/",
+		icon: "material-symbols:archive",
+	},
+	...archiveCategories.map((cat) => ({
+		name: cat.name,
+		url: `/archive/${cat.slug}/`,
+		icon: cat.icon,
+	})),
+];
+
 export const navBarConfig: NavBarConfig = {
 	links: [
 		{
@@ -137,6 +151,7 @@ export const navBarConfig: NavBarConfig = {
 			name: "档案",
 			url: "/archive/",
 			icon: "material-symbols:archive",
+			children: archiveNavChildren,
 		},
 		{
 			name: "项目",

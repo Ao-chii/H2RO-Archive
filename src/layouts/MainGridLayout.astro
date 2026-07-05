@@ -16,6 +16,7 @@ import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_FULLSCREEN,
 } from "../constants/constants";
+import { categoryName } from "../config/archiveCategories";
 import { formatDateToYYYYMMDD } from "../utils/date-utils";
 import {
 	calculateGridLayout,
@@ -240,7 +241,7 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 							id="page-overlay-data"
 							data-title={title || ""}
 							data-date={publishedDate ? formatDateToYYYYMMDD(publishedDate) : ""}
-							data-category={category || ""}
+							data-category={categoryName(category)}
 							data-words={wordCount ? String(wordCount) : ""}
 							data-is-post={postSlug ? "true" : "false"}
 							data-is-home={isHomePage ? "true" : "false"}

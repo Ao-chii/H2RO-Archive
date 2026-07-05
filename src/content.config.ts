@@ -13,6 +13,7 @@ const postsCollection = defineCollection({
 		image: z.string().optional().default(""),
 		tags: z.array(z.string()).optional().default([]),
 		category: z.string().optional().nullable().default(""),
+		docType: z.enum(["pdf"]).optional(), // 缺省 = 普通 markdown;pdf = 逐页文档预览
 		lang: z.string().optional().default(""),
 		pinned: z.boolean().optional().default(false),
 		comment: z.boolean().optional().default(true),

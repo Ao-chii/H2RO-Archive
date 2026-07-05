@@ -1,14 +1,11 @@
 ---
 import { Icon } from "astro-icon/components";
 
+import { archiveCategories } from "@/config/archiveCategories";
 import { siteConfig } from "../../../config";
 import I18nKey from "../../../i18n/i18nKey";
 import { i18n } from "../../../i18n/translation";
-import {
-	getCategoryList,
-	getSortedPosts,
-	getTagList,
-} from "../../../utils/content-utils";
+import { getSortedPosts, getTagList } from "../../../utils/content-utils";
 import WidgetLayout from "../common/WidgetLayout.astro";
 
 interface Props {
@@ -23,7 +20,6 @@ const siteStartDate = siteConfig.siteStartDate || "2025-01-01";
 
 // 获取所有文章
 const posts = await getSortedPosts();
-const categories = await getCategoryList();
 const tags = await getTagList();
 
 // 计算总字数
@@ -82,7 +78,7 @@ const stats = [
 	{
 		icon: "material-symbols:folder-outline",
 		label: i18n(I18nKey.siteStatsCategoryCount),
-		value: categories.length,
+		value: archiveCategories.length,
 	},
 	{
 		icon: "material-symbols:label-outline",

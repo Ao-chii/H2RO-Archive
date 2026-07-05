@@ -31,6 +31,7 @@ const INSTALLED_COLLECTIONS = [
 	"fa7-regular",
 	"fa7-brands",
 	"simple-icons",
+	"solar",
 ];
 
 const SCAN_DIR = "src";

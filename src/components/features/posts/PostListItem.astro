@@ -1,6 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 
+import { categoryName } from "@/config/archiveCategories";
 import type { PostForList } from "@/utils/content-utils";
 import { formatDateToYYYYMMDD } from "@/utils/date-utils";
 import { getPostPublicDescription } from "@/utils/post-card-content";
@@ -32,7 +33,7 @@ const displayDate =
 ---
 
 <a
-	href={getPostUrlBySlug(post.id)}
+	href={post.url || getPostUrlBySlug(post.id)}
 	class="group flex items-center gap-3 px-3 py-3 -mx-1 rounded-lg transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98]"
 >
 	<div
@@ -53,7 +54,7 @@ const displayDate =
 			{
 				showCategory && post.data.category && (
 					<span class="shrink-0 self-end px-1.5 py-0.5 rounded bg-(--btn-regular-bg) text-(--btn-content)">
-						{post.data.category}
+						{categoryName(post.data.category)}
 					</span>
 				)
 			}

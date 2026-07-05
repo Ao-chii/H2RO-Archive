@@ -1,0 +1,154 @@
+---
+// 分类浏览页 /archive/<slug>/ —— 纸墨"对象索引页"
+// 列出该分类下全部内容(md + pdf),pdf 额外带类型标签
+import { archiveCategories } from "@/config/archiveCategories";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { getSortedPostsList } from "@utils/content-utils";
+import { formatDateToYYYYMMDD } from "@utils/date-utils";
+
+export async function getStaticPaths() {
+	return archiveCategories.map((cat) => ({
+		params: { category: cat.slug },
+		props: { cat },
+	}));
+}
+
+const { cat } = Astro.props;
+const posts = (await getSortedPostsList()).filter(
+	(p) => p.data.category === cat.slug,
+);
+---
+
+<MainGridLayout title={cat.name}>
+	<script>
+		import("../../scripts/right-sidebar-layout.js");
+	</script>
+	<div class="card-base w-full px-6 py-6 md:px-9 md:py-8">
+		<header class="cat-header">
+			<div class="kicker">{cat.kicker}</div>
+			<h1 class="cat-title">{cat.name}</h1>
+			<p class="cat-count">共 {posts.length} 篇</p>
+		</header>
+
+		<hr class="rule" />
+
+		{
+			posts.length > 0 ? (
+				<ul class="entry-list">
+					{posts.map((p) => (
+						<li class="entry">
+							<a class="entry-title" href={p.url}>
+								{p.data.title}
+							</a>
+							<div class="entry-meta">
+								<time>
+									{formatDateToYYYYMMDD(p.data.updated || p.data.published)}
+								</time>
+								{p.data.docType === "pdf" && (
+									<span class="pdf-badge">PDF</span>
+								)}
+								{p.data.tags?.map((t) => (
+									<span class="tag">#{t}</span>
+								))}
+							</div>
+						</li>
+					))}
+				</ul>
+			) : (
+				<div class="empty-state">
+					<p>[ 该分类暂无内容 ]</p>
+					<p class="mono">category: {cat.slug}</p>
+				</div>
+			)
+		}
+	</div>
+</MainGridLayout>
+
+<style>
+	.cat-header {
+		margin-bottom: 1rem;
+	}
+	.kicker {
+		font-family: var(--font-code);
+		font-size: 11px;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+	.cat-title {
+		margin: 0.4rem 0 0.3rem;
+		font-family: var(--font-reading);
+		font-size: clamp(30px, 4vw, 44px);
+		line-height: 1.1;
+		font-weight: 580;
+		color: var(--ink);
+	}
+	.cat-count {
+		margin: 0;
+		font-family: var(--font-code);
+		font-size: 12px;
+		color: var(--muted);
+	}
+	.rule {
+		border: none;
+		border-top: 1px solid var(--line-divider);
+		margin: 1.1rem 0;
+	}
+
+	.entry-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	.entry {
+		padding: 0.9rem 0;
+		border-bottom: 1px solid var(--line-divider);
+	}
+	.entry:last-child {
+		border-bottom: none;
+	}
+	.entry-title {
+		font-family: var(--font-reading);
+		font-size: 1.2rem;
+		color: var(--ink);
+		text-decoration: none;
+		transition: color 150ms ease;
+	}
+	.entry-title:hover {
+		color: var(--primary);
+	}
+	.entry-meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		margin-top: 0.35rem;
+		font-family: var(--font-code);
+		font-size: 12px;
+		color: var(--muted);
+	}
+	.entry-meta .tag {
+		color: var(--muted);
+	}
+	.pdf-badge {
+		padding: 1px 8px;
+		border-radius: 999px;
+		background: var(--tool-bg);
+		color: var(--blue-ink);
+		letter-spacing: 0.04em;
+	}
+
+	.empty-state {
+		border: 1px dashed var(--paper-border-strong);
+		border-radius: 8px;
+		padding: 2rem 1rem;
+		text-align: center;
+		color: var(--muted);
+		font-family: var(--font-reading);
+	}
+	.empty-state .mono {
+		margin-top: 0.5rem;
+		font-family: var(--font-code);
+		font-size: 12px;
+	}
+</style>
