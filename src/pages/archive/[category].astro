@@ -5,6 +5,7 @@ import { archiveCategories } from "@/config/archiveCategories";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPostsList } from "@utils/content-utils";
 import { formatDateToYYYYMMDD } from "@utils/date-utils";
+import { getTagUrl } from "@utils/url-utils";
 
 export async function getStaticPaths() {
 	return archiveCategories.map((cat) => ({
@@ -48,7 +49,13 @@ const posts = (await getSortedPostsList()).filter(
 									<span class="pdf-badge">PDF</span>
 								)}
 								{p.data.tags?.map((t) => (
-									<span class="tag">#{t}</span>
+									<a
+										class="tag"
+										href={getTagUrl(t)}
+										aria-label={`查看带有 ${t.trim()} 标签的文章`}
+									>
+										{t.trim()}
+									</a>
 								))}
 							</div>
 						</li>
@@ -128,7 +135,31 @@ const posts = (await getSortedPostsList()).filter(
 		color: var(--muted);
 	}
 	.entry-meta .tag {
-		color: var(--muted);
+		display: inline-flex;
+		align-items: center;
+		min-height: 1.65rem;
+		padding: 0.15rem 0.58rem;
+		border: 1px solid var(--line-divider);
+		border-radius: 8px;
+		background: var(--btn-regular-bg);
+		color: var(--btn-content);
+		line-height: 1;
+		text-decoration: none;
+		transition:
+			background-color 150ms ease,
+			border-color 150ms ease,
+			color 150ms ease,
+			transform 150ms ease;
+	}
+	.entry-meta .tag:hover {
+		border-color: var(--primary);
+		background: var(--btn-plain-bg-hover);
+		color: var(--primary);
+		transform: translateY(-1px);
+	}
+	.entry-meta .tag:active {
+		background: var(--btn-plain-bg-active);
+		transform: translateY(0);
 	}
 	.pdf-badge {
 		padding: 1px 8px;
