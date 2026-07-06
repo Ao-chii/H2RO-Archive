@@ -14,7 +14,7 @@ if (!siteConfig.featurePages.aiTools) {
 	return Astro.redirect("/404/");
 }
 
-const categories = [...new Set(aiToolsData.map((tool) => tool.category))];
+const categories = [...new Set(aiToolsData.flatMap((tool) => tool.categories))];
 
 const getCategoryText = (category: string) => {
 	switch (category) {
@@ -73,7 +73,7 @@ const filterTabs = [
 		value: category,
 		label: getCategoryText(category),
 		icon: getCategoryIcon(category),
-		count: aiToolsData.filter((t) => t.category === category).length,
+		count: aiToolsData.filter((t) => t.categories.includes(category)).length,
 	})),
 ];
 

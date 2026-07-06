@@ -44,7 +44,7 @@ const getFrequencyWidth = (frequency: string) => {
 
 <div
 	class="ai-tool-card group relative bg-transparent rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-	data-category={tool.category}
+	data-category={tool.categories.join(",")}
 >
 	<div class="p-5">
 		<div class="flex items-start gap-4 mb-3">
