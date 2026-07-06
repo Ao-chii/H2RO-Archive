@@ -154,11 +154,12 @@ async function processData(items, status) {
 			? item.subject.date.slice(0, 4)
 			: "Unknown";
 
-		const rating = item.rate
-			? Number.parseFloat(item.rate.toFixed(1))
-			: item.subject?.score
-				? Number.parseFloat(item.subject.score.toFixed(1))
-				: 0;
+		const personalRating = item.rate
+			? Number.parseFloat(Number(item.rate).toFixed(1))
+			: 0;
+		const publicRating = item.subject?.score
+			? Number.parseFloat(Number(item.subject.score).toFixed(1))
+			: 0;
 
 		const progress = item.ep_status || 0;
 		const totalEpisodes = item.subject?.eps || progress;
@@ -178,7 +179,9 @@ async function processData(items, status) {
 			title:
 				item.subject?.name_cn || item.subject?.name || "Unknown Title",
 			status: status,
-			rating: rating,
+			rating: personalRating || publicRating,
+			personalRating,
+			publicRating,
 			cover: item.subject?.images?.medium || "/assets/anime/default.webp",
 			description: description,
 			episodes: `${totalEpisodes} episodes`,

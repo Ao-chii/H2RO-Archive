@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { siteConfig } from "../config/siteConfig";
 import localAnimeList from "../data/anime";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
@@ -11,6 +12,8 @@ export interface RawAnimeItem {
 	link?: string;
 	status?: string;
 	rating?: number | string;
+	personalRating?: number | string;
+	publicRating?: number | string;
 	progress?: number | string;
 	totalEpisodes?: number | string;
 	description?: string;
@@ -25,6 +28,8 @@ export interface AnimeItem {
 	link: string;
 	status: string;
 	rating: number;
+	personalRating?: number;
+	publicRating?: number;
 	progress: number;
 	totalEpisodes: number;
 	description: string;
@@ -54,19 +59,27 @@ export function loadAnimeData(filename: string): AnimeItem[] {
 		const fileContent = fs.readFileSync(dataPath, "utf-8");
 		const rawData = JSON.parse(fileContent) as RawAnimeItem[];
 
-		return rawData.map((item) => ({
-			title: item.title || "Unknown",
-			cover: item.cover || "",
-			link: item.link || "",
-			status: item.status || "planned",
-			rating: Number(item.rating) || 0,
-			progress: Number(item.progress) || 0,
-			totalEpisodes: Number(item.totalEpisodes) || 12,
-			description: item.description || "",
-			year: item.year || "",
-			studio: item.studio || "",
-			genre: Array.isArray(item.genre) ? item.genre : [],
-		}));
+		return rawData.map((item) => {
+			const rating = Number(item.rating) || 0;
+			const personalRating = Number(item.personalRating) || 0;
+			const publicRating = Number(item.publicRating) || rating;
+
+			return {
+				title: item.title || "Unknown",
+				cover: item.cover || "",
+				link: item.link || "",
+				status: item.status || "planned",
+				rating: rating || personalRating || publicRating,
+				personalRating,
+				publicRating,
+				progress: Number(item.progress) || 0,
+				totalEpisodes: Number(item.totalEpisodes) || 12,
+				description: item.description || "",
+				year: item.year || "",
+				studio: item.studio || "",
+				genre: Array.isArray(item.genre) ? item.genre : [],
+			};
+		});
 	} catch (error) {
 		console.error(`[Anime] Failed to parse ${filename}:`, error);
 		return [];
@@ -82,13 +95,13 @@ export function getAnimeSourceConfigs(): Record<string, AnimeSourceConfig> {
 		bilibili: {
 			type: "json",
 			filename: "bilibili-data.json",
-			fetchOnDev: undefined,
+			fetchOnDev: siteConfig.bilibili?.fetchOnDev,
 			emptyDescription: i18n(I18nKey.animeEmptyBilibili),
 		},
 		bangumi: {
 			type: "json",
 			filename: "bangumi-data.json",
-			fetchOnDev: undefined,
+			fetchOnDev: siteConfig.bangumi?.fetchOnDev,
 			emptyDescription: i18n(I18nKey.animeEmptyBangumi),
 		},
 	};
