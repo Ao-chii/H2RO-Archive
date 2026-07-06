@@ -31,12 +31,6 @@ export const archiveCategories: ArchiveCategory[] = [
 		icon: "material-symbols:edit-note",
 	},
 	{
-		slug: "project",
-		name: "项目",
-		kicker: "04 / PROJECT",
-		icon: "material-symbols:work",
-	},
-	{
 		slug: "game",
 		name: "游戏",
 		kicker: "05 / GAME",

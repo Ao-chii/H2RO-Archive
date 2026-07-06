@@ -143,23 +143,23 @@ const archiveNavChildren: NavBarLink[] = [
 export const navBarConfig: NavBarConfig = {
 	links: [
 		{
-			name: "总览",
+			name: "Home",
 			url: "/",
 			icon: "material-symbols:home",
 		},
 		{
-			name: "档案",
+			name: "Archive",
 			url: "/archive/",
 			icon: "material-symbols:archive",
 			children: archiveNavChildren,
 		},
 		{
-			name: "项目",
+			name: "Projects",
 			url: "/projects/",
 			icon: "material-symbols:work",
 		},
 		{
-			name: "生活",
+			name: "Life",
 			url: "/diary/",
 			icon: "material-symbols:book",
 			children: [
@@ -170,7 +170,7 @@ export const navBarConfig: NavBarConfig = {
 			],
 		},
 		{
-			name: "资料",
+			name: "Resources",
 			url: "/skills/",
 			icon: "material-symbols:psychology",
 			children: [
@@ -183,13 +183,14 @@ export const navBarConfig: NavBarConfig = {
 				},
 			],
 		},
+		// Timeline 页面暂时不上主导航，功能内容整理完成后再恢复。
+		// {
+		// 	name: "Timeline",
+		// 	url: "/timeline/",
+		// 	icon: "material-symbols:timeline",
+		// },
 		{
-			name: "时间线",
-			url: "/timeline/",
-			icon: "material-symbols:timeline",
-		},
-		{
-			name: "说明",
+			name: "About",
 			url: "/about/",
 			icon: "material-symbols:info",
 		},
