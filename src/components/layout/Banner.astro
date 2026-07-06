@@ -613,20 +613,28 @@ const bannerFormats = getImageFormats();
 			<div class="w-4/5 lg:w-3/4 text-center mb-0">
 				<div class="flex flex-col">
 					{overlayTitle && (
-						<h1 class="banner-title text-6xl lg:text-8xl text-white drop-shadow-lg mb-2 lg:mb-4">
+						<h1 class="banner-title text-6xl lg:text-8xl mb-2 lg:mb-4">
 							{overlayTitle}
 						</h1>
 					)}
 					{overlaySubtitle && (
-						<h2 class="banner-subtitle text-xl lg:text-3xl text-white/90 drop-shadow-md">
-							<span class="inline-block min-h-[1.2em]">
+						<h2 class="banner-subtitle text-xl lg:text-3xl">
+							<span
+								class={`inline-flex flex-col items-center ${
+									typewriter && Array.isArray(overlaySubtitle)
+										? "min-h-[2.5em] gap-1"
+										: "min-h-[1.2em]"
+								}`}
+							>
 								{typewriter && Array.isArray(overlaySubtitle) ? (
-									<TypewriterText
-										text={overlaySubtitle}
-										speed={siteConfig.banner.homeText?.typewriter?.speed}
-										deleteSpeed={siteConfig.banner.homeText?.typewriter?.deleteSpeed}
-										pauseTime={siteConfig.banner.homeText?.typewriter?.pauseTime}
-									/>
+									overlaySubtitle.map((subtitle) => (
+										<TypewriterText
+											text={subtitle}
+											speed={siteConfig.banner.homeText?.typewriter?.speed}
+											deleteSpeed={siteConfig.banner.homeText?.typewriter?.deleteSpeed}
+											pauseTime={siteConfig.banner.homeText?.typewriter?.pauseTime}
+										/>
+									))
 								) : Array.isArray(overlaySubtitle) ? (
 									overlaySubtitle[0]
 								) : (
@@ -643,8 +651,8 @@ const bannerFormats = getImageFormats();
 	<!-- 非首页页面标题覆盖层（持久化容器，JS 动态填充文本） -->
 	<div id="banner-page-overlay" class="banner-page-overlay hidden lg:flex absolute inset-0 z-20 pointer-events-none">
 		<div class="flex flex-col items-center justify-center w-full text-center px-4">
-			<h2 id="page-overlay-title" class="page-overlay-title text-3xl lg:text-5xl text-white font-bold drop-shadow-lg px-4"></h2>
-			<div id="page-overlay-meta" class="page-overlay-meta hidden flex-wrap items-center justify-center gap-x-5 gap-y-2 text-white/80 text-sm md:text-base mt-4">
+			<h2 id="page-overlay-title" class="page-overlay-title text-3xl lg:text-5xl font-bold px-4"></h2>
+			<div id="page-overlay-meta" class="page-overlay-meta hidden flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm md:text-base mt-4">
 				<span class="inline-flex items-center gap-1.5">
 					<Icon name="material-symbols:calendar-month-outline-rounded" class="text-[1.05em]" />
 					<span id="page-overlay-date"></span>
@@ -732,13 +740,13 @@ const bannerFormats = getImageFormats();
 			]}
 		>
 			<Icon
-				class="text-white/75 text-[1.25rem] mr-1"
+				class="banner-credit-icon text-[1.25rem] mr-1"
 				name="material-symbols:copyright-outline-rounded"
 			/>
-			<div class="text-white/75 text-xs">{siteConfig.banner.credit.text}</div>
+			<div class="banner-credit-text text-xs">{siteConfig.banner.credit.text}</div>
 			<Icon
 				class:list={[
-					"transition absolute text-[oklch(0.75_0.14_var(--hue))] right-4 text-[0.75rem] opacity-0",
+					"banner-credit-link-icon transition absolute right-4 text-[0.75rem] opacity-0",
 					{ "group-hover:opacity-100": hasBannerLink },
 				]}
 				name="fa7-solid:arrow-up-right-from-square"
@@ -747,30 +755,3 @@ const bannerFormats = getImageFormats();
 		</a>
 	)}
 </div>
-
-<style>
-	/* Banner 文本样式 */
-	.banner-title {
-		text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-		animation: fadeInUp 1s ease-out;
-		font-weight: bold;
-	}
-
-	.banner-subtitle {
-		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
-		animation: fadeInUp 1s ease-out 0.3s both;
-		min-height: 1.5em;
-		line-height: 1.2;
-	}
-
-	@keyframes fadeInUp {
-		from {
-			opacity: 0;
-			transform: translateY(30px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-</style>
