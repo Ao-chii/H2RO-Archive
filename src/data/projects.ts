@@ -32,14 +32,14 @@ export const projectsData: Project[] = [
 		sourceCode: "https://github.com/Ao-chii/Trace",
 		startDate: "2026-01-01",
 		featured: true,
-		tags: ["AI Agent", "Testing", "Evaluation"],
+		tags: ["Agent", "Python", "FastAPI", "pytest", "Vue"],
 		showImage: false,
 	},
 	{
 		id: "edge-delta",
 		title: "Edge Delta",
 		description:
-			"华中科技大学数据库系统原理课程设计项目，使用 C# 与 Unity 技术栈实现课程设计原型与交互展示。",
+			"华中科技大学虚拟现实技术课程设计项目，使用 C# 与 Unity 技术栈实现课程设计原型与交互展示。",
 		image: "",
 		category: "desktop",
 		techStack: ["C#", "Unity", "ShaderLab", "HLSL", "Wolfram Language"],
