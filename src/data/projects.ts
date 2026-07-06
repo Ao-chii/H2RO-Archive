@@ -29,7 +29,7 @@ export const projectsData: Project[] = [
 		category: "web",
 		techStack: ["Astro", "TypeScript", "Svelte", "Tailwind CSS", "Markdown"],
 		status: "in-progress",
-		visitUrl: "https://h2ro-archive.vercel.app/",
+		visitUrl: "https://h2ro.cn/",
 		sourceCode: "https://github.com/Ao-chii/H2RO-Archive",
 		startDate: "2026-07-01",
 		featured: true,
