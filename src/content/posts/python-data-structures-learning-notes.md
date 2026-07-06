@@ -2,7 +2,7 @@
 title: Python 数据结构学习笔记
 published: 2025-02-21
 description: 整理 Python 语境下的数组、链表、哈希表、二叉树、二叉堆、线段树和图论基础。
-tags: [Python, 数据结构, 算法, 2025, 大二下]
+tags: [Python, 数据结构, 算法, "2025", 大二下]
 category: self-study
 draft: false
 lang: zh-CN
