@@ -88,18 +88,7 @@ function collectFromI18n(textSet) {
  * 从 content 目录提取 CJK 字符
  */
 function collectFromContent(textSet) {
-	let contentDir;
-	if (
-		process.env.ENABLE_CONTENT_SYNC === "true" &&
-		process.env.CONTENT_DIR
-	) {
-		contentDir = path.join(ROOT_DIR, process.env.CONTENT_DIR);
-		console.log(
-			`ℹ Using external content directory: ${process.env.CONTENT_DIR}`,
-		);
-	} else {
-		contentDir = path.join(ROOT_DIR, "src/content");
-	}
+	const contentDir = path.join(ROOT_DIR, "src/content");
 
 	if (!fs.existsSync(contentDir)) {
 		console.log(`⚠ Content directory does not exist: ${contentDir}`);

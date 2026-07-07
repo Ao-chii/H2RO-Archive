@@ -22,12 +22,12 @@ export const friendsData: FriendItem[] = [
 	},
 	{
 		id: 2,
-		title: "Mizuki Docs",
+		title: "Mizuki",
 		imgurl:
 			"https://q.qlogo.cn/headimg_dl?dst_uin=3231515355&spec=640&img_type=jpg",
-		desc: "Mizuki User Manual",
-		siteurl: "https://docs.mizuki.mysqil.com",
-		tags: ["Docs"],
+		desc: "H2RO Archive 改造所基于的 Astro 博客模板",
+		siteurl: "https://github.com/LyraVoid/Mizuki",
+		tags: ["Template", "Astro"],
 	},
 	{
 		id: 3,
@@ -55,10 +55,10 @@ export const friendsData: FriendItem[] = [
 	},
 	{
 		id: 6,
-		title: "React",
-		imgurl: "https://avatars.githubusercontent.com/u/6412038?v=4&s=640",
-		desc: "A JavaScript library for building user interfaces",
-		siteurl: "https://reactjs.org",
+		title: "Svelte",
+		imgurl: "https://avatars.githubusercontent.com/u/23617963?v=4&s=640",
+		desc: "Cybernetically enhanced web apps",
+		siteurl: "https://svelte.dev",
 		tags: ["Framework", "JavaScript"],
 	},
 	{

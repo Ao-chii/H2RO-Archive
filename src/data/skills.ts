@@ -22,8 +22,7 @@ export const skillsData: Skill[] = [
 	{
 		id: "javascript",
 		name: "JavaScript",
-		description:
-			"用于页面交互、异步流程和模块化前端逻辑的核心语言。",
+		description: "用于页面交互、异步流程和模块化前端逻辑的核心语言。",
 		icon: "logos:javascript",
 		category: "frontend",
 		level: "intermediate",
@@ -55,8 +54,7 @@ export const skillsData: Skill[] = [
 	{
 		id: "astro",
 		name: "Astro",
-		description:
-			"用于构建内容型静态站点，适合博客、档案页和轻量级展示页面。",
+		description: "用于构建内容型静态站点，适合博客、档案页和轻量级展示页面。",
 		icon: "logos:astro-icon",
 		category: "frontend",
 		level: "intermediate",
@@ -66,8 +64,7 @@ export const skillsData: Skill[] = [
 	{
 		id: "vite",
 		name: "Vite",
-		description:
-			"用于前端开发服务器、打包流程和现代项目脚手架。",
+		description: "用于前端开发服务器、打包流程和现代项目脚手架。",
 		icon: "logos:vitejs",
 		category: "frontend",
 		level: "intermediate",
@@ -77,8 +74,7 @@ export const skillsData: Skill[] = [
 	{
 		id: "css",
 		name: "CSS",
-		description:
-			"负责响应式布局、视觉层级和组件样式落地，是页面质感的基本功。",
+		description: "负责响应式布局、视觉层级和组件样式落地，是页面质感的基本功。",
 		icon: "logos:css-3",
 		category: "frontend",
 		level: "intermediate",
@@ -88,8 +84,7 @@ export const skillsData: Skill[] = [
 	{
 		id: "html",
 		name: "HTML",
-		description:
-			"负责页面结构、语义组织和内容承载，是前端界面的基础骨架。",
+		description: "负责页面结构、语义组织和内容承载，是前端界面的基础骨架。",
 		icon: "logos:html-5",
 		category: "frontend",
 		level: "intermediate",
@@ -169,8 +164,7 @@ export const skillsData: Skill[] = [
 	{
 		id: "mysql",
 		name: "MySQL",
-		description:
-			"用于关系型数据建模、查询和常见 Web 应用的数据持久化。",
+		description: "用于关系型数据建模、查询和常见 Web 应用的数据持久化。",
 		icon: "logos:mysql-icon",
 		category: "database",
 		level: "intermediate",
@@ -180,8 +174,7 @@ export const skillsData: Skill[] = [
 	{
 		id: "postgresql",
 		name: "PostgreSQL",
-		description:
-			"用于结构化数据存储、复杂查询和较严肃的关系型数据库场景。",
+		description: "用于结构化数据存储、复杂查询和较严肃的关系型数据库场景。",
 		icon: "logos:postgresql",
 		category: "database",
 		level: "intermediate",
@@ -204,8 +197,7 @@ export const skillsData: Skill[] = [
 	{
 		id: "git",
 		name: "Git",
-		description:
-			"用于版本管理、分支协作和变更追踪，是维护项目历史的基础工具。",
+		description: "用于版本管理、分支协作和变更追踪，是维护项目历史的基础工具。",
 		icon: "logos:git-icon",
 		category: "tools",
 		level: "advanced",
@@ -226,8 +218,7 @@ export const skillsData: Skill[] = [
 	{
 		id: "pycharm",
 		name: "PyCharm",
-		description:
-			"用于 Python 项目的代码分析、调试和工程化管理。",
+		description: "用于 Python 项目的代码分析、调试和工程化管理。",
 		icon: "logos:pycharm",
 		category: "tools",
 		level: "intermediate",
@@ -237,8 +228,7 @@ export const skillsData: Skill[] = [
 	{
 		id: "docker",
 		name: "Docker",
-		description:
-			"用于容器化开发环境、服务编排和项目部署前的环境隔离。",
+		description: "用于容器化开发环境、服务编排和项目部署前的环境隔离。",
 		icon: "logos:docker-icon",
 		category: "tools",
 		level: "intermediate",
@@ -259,8 +249,7 @@ export const skillsData: Skill[] = [
 	{
 		id: "codex",
 		name: "Codex",
-		description:
-			"OpenAI 开发的 AI 编程助手，用于代码阅读、改造和项目维护。",
+		description: "OpenAI 开发的 AI 编程助手，用于代码阅读、改造和项目维护。",
 		icon: "simple-icons:openai",
 		category: "tools",
 		level: "intermediate",

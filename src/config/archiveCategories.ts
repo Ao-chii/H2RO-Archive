@@ -46,7 +46,7 @@ export const archiveCategories: ArchiveCategory[] = [
 
 const bySlug = new Map(archiveCategories.map((c) => [c.slug, c]));
 
-// slug → 中文显示名;未命中回退原值(兼容尚未归类的示例文章)
+// slug → 中文显示名;未命中回退原值(兼容尚未归类的文章)
 export function categoryName(slug: string | null | undefined): string {
 	if (!slug) return "";
 	return bySlug.get(slug)?.name ?? slug;

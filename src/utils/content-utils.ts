@@ -123,9 +123,7 @@ export async function getCategoryList(): Promise<Category[]> {
 
 	allBlogPosts.forEach((post: { data: { category: string | null } }) => {
 		const slug =
-			typeof post.data.category === "string"
-				? post.data.category.trim()
-				: "";
+			typeof post.data.category === "string" ? post.data.category.trim() : "";
 
 		if (slug in count) {
 			count[slug] += 1;

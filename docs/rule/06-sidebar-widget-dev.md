@@ -1,22 +1,28 @@
 # 侧栏组件开发指南
 
-> 本文档用于规范侧栏相关组件的开发流程，避免出现"配置了组件但页面不显示"的遗漏。
+本文档规范 H2RO Archive 当前侧栏组件接入流程。侧栏不是自动发现组件的系统，新增组件必须同时改类型、配置和渲染注册。
 
-## 适用范围
+## 当前侧栏结构
 
-- 新增或重构侧栏组件（如 `music-sidebar`、自定义统计组件等）
-- 调整 `sidebarLayoutConfig` 中的组件布局
-- 在左侧栏、右侧栏、抽屉侧栏中复用同一组件
+| 文件 | 作用 |
+|------|------|
+| `src/types/config.ts` | 声明 `WidgetComponentType` 和侧栏配置类型 |
+| `src/config/sidebarConfig.ts` | 定义侧栏组件属性、位置和排序 |
+| `src/components/layout/SidebarColumn.astro` | 统一侧栏渲染器和 `componentMap` 注册点 |
+| `src/components/widgets/sidebar/SideBar.astro` | 左侧栏和抽屉包装层 |
+| `src/components/layout/RightSideBar.astro` | 右侧栏包装层 |
+| `src/utils/widget-manager.ts` | 根据配置筛选组件 |
+| `src/utils/widget-renderer.ts` | 构造组件 props |
 
----
+`SideBar.astro` 和 `RightSideBar.astro` 不维护独立组件注册表。真正的注册点是 `SidebarColumn.astro`。
 
-## 接入步骤：3 步缺一不可
+## 新增侧栏组件步骤
 
-### 步骤 1：在类型系统中声明组件类型
+### 1. 声明类型
 
 文件：`src/types/config.ts`
 
-在 `WidgetComponentType` 中新增类型枚举：
+在 `WidgetComponentType` 增加新类型：
 
 ```ts
 export type WidgetComponentType =
@@ -25,65 +31,70 @@ export type WidgetComponentType =
 	| "categories"
 	| "tags"
 	| "toc"
+	| "card-toc"
 	| "music-player"
-	| "music-sidebar" // ✅ 新增类型
+	| "music-sidebar"
 	| "site-stats"
 	| "calendar"
 	| "custom";
 ```
 
-> **规则**：所有侧栏组件必须先在 `WidgetComponentType` 中声明。缺少此步 TS 编译不通过，配置也无意义。
+没有类型声明，配置就不可信。
 
----
+### 2. 创建组件
 
-### 步骤 2：在 `sidebarLayoutConfig` 中配置布局
+推荐目录：
 
-文件：`src/config.ts`
+```text
+src/components/widgets/example-widget/
+├── ExampleWidget.astro
+├── types.ts
+└── index.ts
+```
 
-使用 `SidebarLayoutConfig.components` 来控制组件出现的位置和顺序：
+如果组件需要客户端状态，可在目录内放 Svelte 客户端组件和 hooks。
+
+### 3. 配置侧栏
+
+文件：`src/config/sidebarConfig.ts`
+
+`properties` 定义组件属性，`components` 定义出现在哪个侧栏和顺序：
 
 ```ts
-export const sidebarLayoutConfig: SidebarLayoutConfig = {
-	properties: [
-		{
-			type: "music-sidebar",
-			position: "sticky",
-			class: "onload-animation",
-			animationDelay: 100,
-		},
-		// ... 其他组件
-	],
-	components: {
-		left: ["profile", "announcement", "categories", "tags"],
-		right: ["site-stats", "calendar", "music-sidebar"], // 在右侧栏显示
-		drawer: [
-			"profile",
-			"announcement",
-			"music-sidebar",
-			"categories",
-			"tags",
-		],
+properties: [
+	{
+		type: "example-widget",
+		position: "sticky",
+		class: "onload-animation",
+		animationDelay: 150,
 	},
-	// ...
-};
+],
+components: {
+	left: ["profile", "announcement", "tags", "card-toc"],
+	right: ["site-stats", "calendar", "categories", "music-sidebar"],
+	drawer: ["profile", "announcement", "music-sidebar", "categories", "tags"],
+},
 ```
 
-> **规则**：
-> - `properties` 定义组件的"存在性"、位置（top / sticky）、动画等属性
-> - `components.left / right / drawer` 定义在不同侧栏中"展示哪些组件、按什么顺序"
+当前支持区域：
 
----
+- `left`
+- `right`
+- `drawer`
 
-### 步骤 3：在所有侧栏渲染器中注册组件（最容易忘记）
+当前支持位置：
 
-这是最常出错的步骤。侧栏渲染依赖**手动的 componentMap**，若未注册则对应类型会被静默忽略。
+- `top`
+- `sticky`
 
-请务必检查以下 **3 个文件**：
+### 4. 注册渲染组件
 
-#### 3.1 左侧栏：`src/components/widgets/sidebar/SideBar.astro`
+文件：`src/components/layout/SidebarColumn.astro`
+
+必须导入组件并加入 `componentMap`：
 
 ```ts
-import { MusicSidebarWidget } from "../music-sidebar";
+import ExampleWidget from "../widgets/example-widget/ExampleWidget.astro";
 
 const componentMap: Record<string, unknown> = {
 	profile: Profile,
@@ -91,114 +102,61 @@ const componentMap: Record<string, unknown> = {
 	categories: Categories,
 	tags: Tags,
 	toc: SidebarTOC,
+	"card-toc": CardTOC,
 	"music-player": MusicPlayer,
-	"music-sidebar": MusicSidebarWidget, // ✅ 必须注册
+	"music-sidebar": MusicSidebarWidget,
 	"site-stats": SiteStats,
 	calendar: Calendar,
+	"example-widget": ExampleWidget,
 };
 ```
 
-#### 3.2 右侧栏：`src/components/layout/RightSideBar.astro`
+只改 `sidebarConfig.ts` 不注册 `componentMap`，页面会静默不显示。
+
+## 响应式规则
+
+侧栏组件会通过 `widgetManager.getComponentsByPosition(position, side, device)` 按设备筛选。配置中的 `responsive.hidden` 可以隐藏特定设备：
 
 ```ts
-import { MusicSidebarWidget } from "@/components/widgets/music-sidebar";
-
-const componentMap: Record<string, unknown> = {
-	profile: Profile,
-	announcement: Announcement,
-	categories: Categories,
-	tags: Tags,
-	toc: SidebarTOC,
-	"music-player": MusicPlayer,
-	"music-sidebar": MusicSidebarWidget, // ✅ 必须注册（与左侧栏独立）
-	"site-stats": SiteStats,
-	calendar: Calendar,
-};
+responsive: {
+	hidden: ["mobile"],
+	collapseThreshold: 5,
+}
 ```
 
-#### 3.3 抽屉侧栏：`src/components/widgets/sidebar/SideBar.astro`
+不要在组件内部硬编码“移动端不显示”，除非组件自身确实无法移动端工作。
 
-抽屉侧栏与左侧栏共用同一个文件 `SideBar.astro`，确认 3.1 的注册已覆盖抽屉。
+## Svelte 组件注意
 
-> **典型遗漏**：只在 `SideBar.astro`（左侧栏）中注册了组件，却忘记在 `RightSideBar.astro`（右侧栏）中注册。导致在 `sidebarLayoutConfig.components.right` 中添加了组件但右侧栏始终不显示。
+- 访问浏览器 API 的 Svelte 组件要确认 `client:*` 指令。
+- 需要完全跳过 SSR 时使用 `client:only="svelte"`。
+- 多个侧栏实例如果需要独立展开状态，状态应放组件内部；真正跨组件共享的状态才放 store。
 
----
+## 常见问题
 
-## 常见问题排查
+### 配置了组件但不显示
 
-### Q1：配置了组件但页面不显示
+按顺序检查：
 
-请按以下顺序排查：
+1. `WidgetComponentType` 是否包含该类型？
+2. `sidebarConfig.ts` 的 `properties` 是否包含该类型？
+3. `components.left/right/drawer` 是否包含该类型？
+4. `SidebarColumn.astro` 的 `componentMap` 是否注册？
+5. 当前设备是否被 `responsive.hidden` 隐藏？
+6. 组件内部是否有 `enable` 或数据为空导致不渲染？
 
-1. `src/types/config.ts` 中的 `WidgetComponentType` 是否包含该类型？
-2. `src/config.ts` 中 `sidebarLayoutConfig.components` 的对应数组是否包含该类型？
-3. 对应侧栏渲染器的 `componentMap` 是否注册了该类型？
-4. 该侧栏在当前设备宽度下是否被响应式逻辑隐藏了？
-5. 组件自身是否有 `enable` 配置导致不渲染？
+### 左侧显示，右侧不显示
 
-### Q2：音乐播放器配置说明
+检查 `sidebarConfig.ts` 的 `components.right`。左右侧栏共用注册表，不存在“右侧栏单独注册一次”的机制。
 
-音乐播放器有以下配置选项（位于 `musicPlayerConfig`）：
+## 代码审查检查
 
-| 配置项 | 类型 | 说明 |
-|--------|------|------|
-| `enable` | boolean | 控制音乐核心是否初始化。为 `false` 时，悬浮 UI 和侧栏均不工作 |
-| `showFloatingPlayer` | boolean | 控制悬浮播放器 UI 是否显示。为 `false` 时仅侧栏可用 |
-| `mode` | "meting" \| "local" | 播放列表数据来源 |
-| `meting_api` | string | Meting API 地址 |
-| `id` | string | 歌单 ID |
-| `server` | string | 音乐源服务器 |
-| `type` | string | 播单类型 |
+- [ ] `src/types/config.ts` 已声明类型。
+- [ ] `src/config/sidebarConfig.ts` 已配置 `properties`。
+- [ ] `components.left/right/drawer` 中的位置符合预期。
+- [ ] `src/components/layout/SidebarColumn.astro` 已注册 `componentMap`。
+- [ ] Svelte 客户端组件 SSR 边界正确。
+- [ ] 没有把侧栏排序写死在组件里。
 
-**验证场景**：
-- `enable=true, showFloatingPlayer=true` — 全功能，悬浮 UI 和侧栏均可用
-- `enable=true, showFloatingPlayer=false` — 仅侧栏可用，悬浮 UI 不显示
-- `enable=false` — 音乐核心不初始化，悬浮 UI 和侧栏均不工作
-
-**注意**：`music-sidebar` 侧栏组件依赖 `musicPlayerStore` 运行，当 `enable=false` 时侧栏也无法工作。
-
-### Q3：只在左侧栏显示，右侧栏不显示
-
-请检查 `RightSideBar.astro` 的 `componentMap` 是否包含该组件类型。左侧栏注册了不等于右侧栏也自动注册。
-
-### Q4：组件在 SSR 时报错 `window is not defined`
-
-**原因**：Svelte 组件在服务端渲染阶段访问了 `window` 对象。
-
-**解法**：在 Astro 中使用 `client:only` 指令禁止服务端渲染：
-
-```astro
-<!-- ❌ 错误：服务端仍会渲染组件 -->
-<MyComponent client:idle />
-
-<!-- ✅ 正确：只在浏览器执行 -->
-<MyComponent client:only="svelte" />
-```
-
-### Q5：多个侧栏需要各自独立的状态
-
-若同一组件在多个侧栏实例中需要独立状态（如侧栏播放列表的展开/收起状态），该状态应存在**组件自身**，而非共享全局状态。
-
----
-
-## 代码审查检查清单
-
-在代码审查时，必须检查：
-
-- [ ] `src/types/config.ts` 的 `WidgetComponentType` 中已声明新组件类型
-- [ ] `src/config.ts` 的 `sidebarLayoutConfig.components` 中已配置该组件
-- [ ] `SideBar.astro`（左侧栏 + 抽屉）的 `componentMap` 中已注册
-- [ ] `RightSideBar.astro`（右侧栏）的 `componentMap` 中已注册
-- [ ] Svelte 组件使用了正确的 `client:*` 指令（避免 SSR window 错误）
-- [ ] 组件自身的功能开关（如 `enable`、`showFloatingPlayer`）已正确配置
-
----
-
-## 配置文件速查表
-
-| 文件 | 作用 | 必须操作 |
-|------|------|----------|
-| `src/types/config.ts` | 类型声明 | 在 `WidgetComponentType` 中新增枚举 |
-| `src/config.ts` | 布局配置 | 在 `sidebarLayoutConfig.components` 中添加组件 |
-| `src/components/widgets/sidebar/SideBar.astro` | 左侧栏渲染 | 在 `componentMap` 中注册 |
-| `src/components/layout/RightSideBar.astro` | 右侧栏渲染 | 在 `componentMap` 中注册（独立于左侧栏） |
+**最后更新**: 2026-07-07
+**维护者**: H2RO Archive 维护者

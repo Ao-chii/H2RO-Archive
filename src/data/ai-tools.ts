@@ -19,7 +19,7 @@ export type LocaleString = Partial<
 >;
 
 export function getLocaleString(value: LocaleString, lang: string): string {
-	return value[lang as keyof LocaleString] ?? value["en"] ?? "";
+	return value[lang as keyof LocaleString] ?? value.en ?? "";
 }
 
 export interface AITool {
@@ -77,7 +77,8 @@ export const aiToolsData: AITool[] = [
 		name: "Gemini",
 		description: {
 			en: "Google's AI assistant for multimodal understanding, search-style answers, and cross-checking information.",
-			zh_CN: "Google 开发的 AI 助手，用于多模态理解、搜索式问答和资料交叉验证。",
+			zh_CN:
+				"Google 开发的 AI 助手，用于多模态理解、搜索式问答和资料交叉验证。",
 		},
 		icon: "simple-icons:googlegemini",
 		categories: ["chat", "image"],

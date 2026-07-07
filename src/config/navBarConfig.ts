@@ -1,6 +1,6 @@
-import { archiveCategories } from "./archiveCategories";
 import type { NavBarConfig, NavBarLink } from "../types/config";
 import { LinkPreset } from "../types/config";
+import { archiveCategories } from "./archiveCategories";
 
 /**
  * 导航栏菜单配置

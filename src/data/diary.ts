@@ -11,7 +11,7 @@ export interface DiaryItem {
 	tags?: string[];
 }
 
-// 示例日记数据
+// 静态日记数据
 const diaryData: DiaryItem[] = [
 	{
 		id: 1,

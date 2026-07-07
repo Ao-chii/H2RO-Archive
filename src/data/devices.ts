@@ -39,8 +39,7 @@ export const devicesData: DeviceCategory = {
 			name: "AULA F87",
 			image: "/images/device/aula-f87.webp",
 			specs: "87 Keys / Tri-mode / Mechanical",
-			description:
-				"狼蛛 F87 三模机械键盘，覆盖有线、2.4G 与蓝牙连接场景。",
+			description: "狼蛛 F87 三模机械键盘，覆盖有线、2.4G 与蓝牙连接场景。",
 			link: "https://www.aulacn.com/",
 		},
 	],
@@ -49,8 +48,7 @@ export const devicesData: DeviceCategory = {
 			name: "SANC G52Max",
 			image: "/images/device/sanc-g52max.webp",
 			specs: "Gaming Monitor",
-			description:
-				"桌面主显示器，用于日常开发、资料阅读和游戏场景。",
+			description: "桌面主显示器，用于日常开发、资料阅读和游戏场景。",
 			link: "https://www.sanc.com.cn/",
 		},
 	],
@@ -59,8 +57,7 @@ export const devicesData: DeviceCategory = {
 			name: "EDIFIER W820NB",
 			image: "/images/device/edifier-w820nb-double-gold.jpg",
 			specs: "双金标版 / Wireless ANC Headphones",
-			description:
-				"漫步者 W820NB 双金标版，日常使用的无线降噪头戴耳机。",
+			description: "漫步者 W820NB 双金标版，日常使用的无线降噪头戴耳机。",
 			link: "https://www.edifier.com/",
 		},
 	],

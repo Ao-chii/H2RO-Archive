@@ -10,6 +10,7 @@ import { render } from "astro:content";
  */
 import Image from "@components/atoms/Image/Image.astro";
 import Comment from "@components/comment/index.astro";
+import PdfPreview from "@components/features/artifacts/PdfPreview.astro";
 import Encryptor from "@components/features/auth/Encryptor.astro";
 import {
 	LastModified,
@@ -18,7 +19,6 @@ import {
 } from "@components/features/posts";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
-import PdfPreview from "@components/features/artifacts/PdfPreview.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";

@@ -5,8 +5,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import Markdown from "@components/misc/Markdown.astro";
-import { categoryName } from "@/config/archiveCategories";
 import { formatDateToYYYYMMDD } from "@utils/date-utils";
+import { categoryName } from "@/config/archiveCategories";
 
 interface Props {
 	slug: string;
@@ -41,9 +41,7 @@ function normalizeManifest(value: unknown): PdfManifest | null {
 	return {
 		pages: data.pages as number,
 		size:
-			typeof data.size === "string" && data.size.trim()
-				? data.size
-				: "未知",
+			typeof data.size === "string" && data.size.trim() ? data.size : "未知",
 		source:
 			typeof data.source === "string" && data.source.trim()
 				? data.source

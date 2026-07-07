@@ -23,10 +23,6 @@ pnpm-debug.log*
 .env
 .env.production
 
-# content repository (independent mode)
-/content/
-*.backup
-
 # Large zip files
 *.zip
 
@@ -51,9 +47,6 @@ src/pages/myself.astro
 
 # Bilibili generated data
 src/data/bilibili-data.json
-
-# Lighthouse CI
-.lighthouseci/
 
 # Live2D editor source files
 *.psd

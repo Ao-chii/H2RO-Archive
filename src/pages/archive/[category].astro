@@ -2,11 +2,11 @@
 // 分类浏览页 /archive/<slug>/ —— 纸墨"对象索引页"
 // 列出该分类下全部内容(md + pdf),pdf 额外带类型标签
 import CategoryBar from "@components/features/posts/CategoryBar.astro";
-import { archiveCategories } from "@/config/archiveCategories";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPostsList } from "@utils/content-utils";
 import { formatDateToYYYYMMDD } from "@utils/date-utils";
 import { getTagUrl } from "@utils/url-utils";
+import { archiveCategories } from "@/config/archiveCategories";
 
 export async function getStaticPaths() {
 	return archiveCategories.map((cat) => ({

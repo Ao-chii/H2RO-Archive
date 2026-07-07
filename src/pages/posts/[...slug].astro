@@ -4,6 +4,7 @@ import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
 import path from "node:path";
 import Comment from "@components/comment/index.astro";
+import PdfPreview from "@components/features/artifacts/PdfPreview.astro";
 import {
 	LastModified,
 	PostMeta,
@@ -15,7 +16,6 @@ import {
 import { ReadingTime, WordCount } from "@components/features/posts/atoms";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
-import PdfPreview from "@components/features/artifacts/PdfPreview.astro";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getRelatedPosts, getSortedPosts } from "@utils/content-utils";
 import { hasCustomPermalink, initPostIdMap } from "@utils/permalink-utils";
