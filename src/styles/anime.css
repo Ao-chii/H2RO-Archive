@@ -97,6 +97,10 @@
 }
 
 .anime-filter-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
   padding: 0.5rem 1rem;
   border: 1px solid var(--line-divider);
   border-radius: var(--radius-large);
@@ -108,6 +112,13 @@
   transition: all 0.2s ease;
   white-space: nowrap;
 }
+
+.anime-filter-count {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.62;
+}
+
 .anime-filter-tag:hover:not(.anime-active) {
   background: var(--btn-hover-bg);
   border-color: var(--primary);

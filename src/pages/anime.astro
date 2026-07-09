@@ -65,6 +65,14 @@ const visibleAnimeList = animeList.slice(0, INITIAL_DISPLAY_COUNT);
 const hiddenAnimeList = animeList.slice(INITIAL_DISPLAY_COUNT);
 const showExtendedFilters = ANIME_MODE === "bangumi";
 const emptyMessage = i18n(I18nKey.animeEmpty);
+const animeStatusCounts = {
+	all: animeList.length,
+	watching: animeList.filter((anime) => anime.status === "watching").length,
+	planned: animeList.filter((anime) => anime.status === "planned").length,
+	completed: animeList.filter((anime) => anime.status === "completed").length,
+	onhold: animeList.filter((anime) => anime.status === "onhold").length,
+	dropped: animeList.filter((anime) => anime.status === "dropped").length,
+};
 ---
 
 <MainGridLayout
@@ -99,6 +107,7 @@ const emptyMessage = i18n(I18nKey.animeEmpty);
 						statusOnHoldLabel={i18n(I18nKey.animeStatusOnHold)}
 						statusDroppedLabel={i18n(I18nKey.animeStatusDropped)}
 						showExtendedFilters={showExtendedFilters}
+						counts={animeStatusCounts}
 					/>
 				</div>
 			</div>

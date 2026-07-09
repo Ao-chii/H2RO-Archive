@@ -7,6 +7,14 @@ interface Props {
 	statusOnHoldLabel?: string;
 	statusDroppedLabel?: string;
 	showExtendedFilters: boolean;
+	counts?: {
+		all: number;
+		watching: number;
+		planned: number;
+		completed: number;
+		onhold: number;
+		dropped: number;
+	};
 }
 
 const {
@@ -17,30 +25,44 @@ const {
 	statusOnHoldLabel,
 	statusDroppedLabel,
 	showExtendedFilters,
+	counts = {
+		all: 0,
+		watching: 0,
+		planned: 0,
+		completed: 0,
+		onhold: 0,
+		dropped: 0,
+	},
 } = Astro.props;
 ---
 
 <div class="anime-filter-container flex flex-wrap gap-2">
-	<button class="anime-filter-tag anime-active" data-status="all"
-		>{filterAllLabel}</button
-	>
-	<button class="anime-filter-tag" data-status="watching"
-		>{statusWatchingLabel}</button
-	>
-	<button class="anime-filter-tag" data-status="planned"
-		>{statusPlannedLabel}</button
-	>
-	<button class="anime-filter-tag" data-status="completed"
-		>{statusCompletedLabel}</button
-	>
+	<button class="anime-filter-tag anime-active" data-status="all">
+		{filterAllLabel}
+		<span class="anime-filter-count">{counts.all}</span>
+	</button>
+	<button class="anime-filter-tag" data-status="watching">
+		{statusWatchingLabel}
+		<span class="anime-filter-count">{counts.watching}</span>
+	</button>
+	<button class="anime-filter-tag" data-status="planned">
+		{statusPlannedLabel}
+		<span class="anime-filter-count">{counts.planned}</span>
+	</button>
+	<button class="anime-filter-tag" data-status="completed">
+		{statusCompletedLabel}
+		<span class="anime-filter-count">{counts.completed}</span>
+	</button>
 	{
 		showExtendedFilters && (
 			<>
 				<button class="anime-filter-tag" data-status="onhold">
 					{statusOnHoldLabel}
+					<span class="anime-filter-count">{counts.onhold}</span>
 				</button>
 				<button class="anime-filter-tag" data-status="dropped">
 					{statusDroppedLabel}
+					<span class="anime-filter-count">{counts.dropped}</span>
 				</button>
 			</>
 		)
