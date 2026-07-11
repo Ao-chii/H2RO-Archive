@@ -1,4 +1,5 @@
 <script lang="ts">
+import QueryPagination from "@components/control/QueryPagination.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { onMount } from "svelte";
@@ -8,6 +9,7 @@ let {
 	tags = $bindable([]),
 	categories = $bindable([]),
 	sortedPosts = [],
+	pageSize = 25,
 }: ArchivePanelProps = $props();
 
 const params = new URLSearchParams(window.location.search);
@@ -16,6 +18,26 @@ categories = params.has("category") ? params.getAll("category") : [];
 const uncategorized = params.get("uncategorized");
 
 let groups = $state<Group[]>([]);
+let currentPage = $state(1);
+let totalPages = $state(1);
+
+function parsePage(value: string | null): number {
+	const page = Number.parseInt(value ?? "1", 10);
+	return Number.isFinite(page) && page > 0 ? page : 1;
+}
+
+function normalizePageUrl(page: number) {
+	const target = new URL(window.location.href);
+	const requestedPage = parsePage(target.searchParams.get("page"));
+	if (requestedPage === page) return;
+
+	if (page === 1) {
+		target.searchParams.delete("page");
+	} else {
+		target.searchParams.set("page", String(page));
+	}
+	window.history.replaceState({}, "", target);
+}
 
 function formatDate(date: Date) {
 	const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -52,6 +74,12 @@ onMount(async () => {
 	filteredPosts = filteredPosts
 		.slice()
 		.sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
+
+	totalPages = Math.max(1, Math.ceil(filteredPosts.length / pageSize));
+	currentPage = Math.min(parsePage(params.get("page")), totalPages);
+	normalizePageUrl(currentPage);
+	const pageStart = (currentPage - 1) * pageSize;
+	filteredPosts = filteredPosts.slice(pageStart, pageStart + pageSize);
 
 	const grouped = filteredPosts.reduce(
 		(acc, post) => {
@@ -152,3 +180,5 @@ onMount(async () => {
 		</div>
 	{/each}
 </div>
+
+<QueryPagination {currentPage} {totalPages} />

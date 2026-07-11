@@ -2,6 +2,7 @@ export interface ArchivePanelProps {
 	tags?: string[];
 	categories?: string[];
 	sortedPosts: Post[];
+	pageSize?: number;
 }
 
 export interface Post {

@@ -37,6 +37,7 @@ const posts = sortedPostsList.map((post) => ({
 	<!-- 过滤条件由 ArchivePanel 从 URL 参数读取 -->
 	<ArchivePanel
 		sortedPosts={posts}
+		pageSize={25}
 		client:only="svelte"
 	/>
 </MainGridLayout>

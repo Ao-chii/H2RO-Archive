@@ -1,4 +1,5 @@
 ---
+import CategoryArchivePanel from "@components/features/archive/CategoryArchivePanel.svelte";
 // 分类浏览页 /archive/<slug>/ —— 纸墨"对象索引页"
 // 列出该分类下全部内容(md + pdf),pdf 额外带类型标签
 import CategoryBar from "@components/features/posts/CategoryBar.astro";
@@ -19,6 +20,17 @@ const { cat } = Astro.props;
 const posts = (await getSortedPostsList()).filter(
 	(p) => p.data.category === cat.slug,
 );
+const entries = posts.map((post) => ({
+	title: post.data.title,
+	url: post.url ?? `/posts/${post.id}/`,
+	date: formatDateToYYYYMMDD(post.data.updated || post.data.published),
+	isPdf: post.data.docType === "pdf",
+	tags:
+		post.data.tags?.map((tag) => ({
+			name: tag.trim(),
+			url: getTagUrl(tag),
+		})) ?? [],
+}));
 ---
 
 <MainGridLayout title={cat.name}>
@@ -37,32 +49,11 @@ const posts = (await getSortedPostsList()).filter(
 
 		{
 			posts.length > 0 ? (
-				<ul class="entry-list">
-					{posts.map((p) => (
-						<li class="entry">
-							<a class="entry-title" href={p.url}>
-								{p.data.title}
-							</a>
-							<div class="entry-meta">
-								<time>
-									{formatDateToYYYYMMDD(p.data.updated || p.data.published)}
-								</time>
-								{p.data.docType === "pdf" && (
-									<span class="pdf-badge">PDF</span>
-								)}
-								{p.data.tags?.map((t) => (
-									<a
-										class="tag"
-										href={getTagUrl(t)}
-										aria-label={`查看带有 ${t.trim()} 标签的文章`}
-									>
-										{t.trim()}
-									</a>
-								))}
-							</div>
-						</li>
-					))}
-				</ul>
+				<CategoryArchivePanel
+					entries={entries}
+					pageSize={12}
+					client:only="svelte"
+				/>
 			) : (
 				<div class="empty-state">
 					<p>[ 该分类暂无内容 ]</p>
@@ -102,73 +93,6 @@ const posts = (await getSortedPostsList()).filter(
 		border: none;
 		border-top: 1px solid var(--line-divider);
 		margin: 1.1rem 0;
-	}
-
-	.entry-list {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
-	.entry {
-		padding: 0.9rem 0;
-		border-bottom: 1px solid var(--line-divider);
-	}
-	.entry:last-child {
-		border-bottom: none;
-	}
-	.entry-title {
-		font-family: var(--font-reading);
-		font-size: 1.2rem;
-		color: var(--ink);
-		text-decoration: none;
-		transition: color 150ms ease;
-	}
-	.entry-title:hover {
-		color: var(--primary);
-	}
-	.entry-meta {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.5rem;
-		margin-top: 0.35rem;
-		font-family: var(--font-code);
-		font-size: 12px;
-		color: var(--muted);
-	}
-	.entry-meta .tag {
-		display: inline-flex;
-		align-items: center;
-		min-height: 1.65rem;
-		padding: 0.15rem 0.58rem;
-		border: 1px solid var(--line-divider);
-		border-radius: 8px;
-		background: var(--btn-regular-bg);
-		color: var(--btn-content);
-		line-height: 1;
-		text-decoration: none;
-		transition:
-			background-color 150ms ease,
-			border-color 150ms ease,
-			color 150ms ease,
-			transform 150ms ease;
-	}
-	.entry-meta .tag:hover {
-		border-color: var(--primary);
-		background: var(--btn-plain-bg-hover);
-		color: var(--primary);
-		transform: translateY(-1px);
-	}
-	.entry-meta .tag:active {
-		background: var(--btn-plain-bg-active);
-		transform: translateY(0);
-	}
-	.pdf-badge {
-		padding: 1px 8px;
-		border-radius: 999px;
-		background: var(--tool-bg);
-		color: var(--blue-ink);
-		letter-spacing: 0.04em;
 	}
 
 	.empty-state {
