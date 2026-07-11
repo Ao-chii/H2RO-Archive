@@ -25,7 +25,7 @@ export const profileConfig: ProfileConfig = {
 			icon: "bangumi",
 			url: "https://bangumi.tv/user/964582",
 		},
-        {
+		{
 			name: "Steam",
 			icon: "fa7-brands:steam",
 			url: "https://steamcommunity.com/profiles/76561199478532198/",
