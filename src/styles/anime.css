@@ -158,16 +158,3 @@
   opacity: 1;
   transform: scale(1);
 }
-
-.anime-loading-spinner {
-  border-right-color: var(--primary);
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}

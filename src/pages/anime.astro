@@ -60,9 +60,7 @@ if (
 }
 
 const statusMap = getStatusMap();
-const INITIAL_DISPLAY_COUNT = 24;
-const visibleAnimeList = animeList.slice(0, INITIAL_DISPLAY_COUNT);
-const hiddenAnimeList = animeList.slice(INITIAL_DISPLAY_COUNT);
+const ANIME_PAGE_SIZE = 20;
 const showExtendedFilters = ANIME_MODE === "bangumi";
 const emptyMessage = i18n(I18nKey.animeEmpty);
 const animeStatusCounts = {
@@ -126,8 +124,7 @@ const animeStatusCounts = {
 						</div>
 					) : (
 						<AnimeGrid
-							visibleAnimeList={visibleAnimeList}
-							hiddenAnimeList={hiddenAnimeList}
+							animeList={animeList}
 							statusMap={statusMap}
 							yearLabel={i18n(I18nKey.animeYear)}
 							studioLabel={i18n(I18nKey.animeStudio)}
@@ -337,169 +334,259 @@ const animeStatusCounts = {
 		})();
 	</script>
 
-	<script is:inline>
+	<script is:inline define:vars={{ animePageSize: ANIME_PAGE_SIZE }}>
 		if (typeof window.animeFilterEventListeners === "undefined") {
 			window.animeFilterEventListeners = [];
 		}
 
+		const HIDDEN_PAGE = -1;
+		const VALID_STATUSES = new Set([
+			"all",
+			"watching",
+			"planned",
+			"completed",
+			"onhold",
+			"dropped",
+		]);
+
+		function parsePositivePage(value) {
+			const page = Number.parseInt(value || "1", 10);
+			return Number.isFinite(page) && page > 0 ? page : 1;
+		}
+
+		function getRequestedStatus() {
+			const params = new URLSearchParams(window.location.search);
+			const status = params.get("status") || "all";
+			return VALID_STATUSES.has(status) ? status : "all";
+		}
+
+		function buildPaginationItems(currentPage, totalPages) {
+			const visibleCount = 5;
+			let count = 1;
+			let left = currentPage;
+			let right = currentPage;
+
+			while (
+				left - 1 > 0 &&
+				right + 1 <= totalPages &&
+				count + 2 <= visibleCount
+			) {
+				count += 2;
+				left--;
+				right++;
+			}
+			while (left - 1 > 0 && count < visibleCount) {
+				count++;
+				left--;
+			}
+			while (right + 1 <= totalPages && count < visibleCount) {
+				count++;
+				right++;
+			}
+
+			const pages = [];
+			if (left > 1) pages.push(1);
+			if (left === 3) pages.push(2);
+			if (left > 3) pages.push(HIDDEN_PAGE);
+			for (let page = left; page <= right; page++) pages.push(page);
+			if (right < totalPages - 2) pages.push(HIDDEN_PAGE);
+			if (right === totalPages - 2) pages.push(totalPages - 1);
+			if (right < totalPages) pages.push(totalPages);
+			return pages;
+		}
+
+		function getAnimeUrl(status, page) {
+			const target = new URL(window.location.href);
+			if (status === "all") {
+				target.searchParams.delete("status");
+			} else {
+				target.searchParams.set("status", status);
+			}
+			if (page <= 1) {
+				target.searchParams.delete("page");
+			} else {
+				target.searchParams.set("page", String(page));
+			}
+			return `${target.pathname}${target.search}${target.hash}`;
+		}
+
+		function updateBrowserUrl(status, page, mode = "replace") {
+			const href = getAnimeUrl(status, page);
+			window.history[`${mode}State`]({}, "", href);
+		}
+
+		function createIcon(name) {
+			const icon = document.createElement("iconify-icon");
+			icon.setAttribute("icon", name);
+			icon.className = "text-[1.75rem]";
+			return icon;
+		}
+
+		function renderPagination(status, currentPage, totalPages, onNavigate) {
+			const root = document.getElementById("anime-pagination-root");
+			if (!root) return;
+			root.replaceChildren();
+			if (totalPages <= 1) return;
+
+			const nav = document.createElement("nav");
+			nav.className = "flex flex-row gap-3 justify-center";
+			nav.setAttribute("aria-label", "追番分页导航");
+
+			function createPageLink(page, label, disabled = false) {
+				const link = document.createElement("a");
+				link.className =
+					"btn-card overflow-hidden rounded-lg text-(--primary) w-11 h-11";
+				link.setAttribute("aria-label", label);
+				if (disabled) {
+					link.classList.add("disabled");
+					link.setAttribute("aria-disabled", "true");
+				} else {
+					link.href = getAnimeUrl(status, page);
+					link.addEventListener("click", (event) => {
+						event.preventDefault();
+						onNavigate(page);
+					});
+				}
+				return link;
+			}
+
+			const previous = createPageLink(
+				currentPage - 1,
+				"上一页",
+				currentPage <= 1,
+			);
+			previous.appendChild(
+				createIcon("material-symbols:chevron-left-rounded"),
+			);
+			nav.appendChild(previous);
+
+			const pageList = document.createElement("div");
+			pageList.className =
+				"bg-(--card-bg) flex flex-row rounded-lg items-center text-neutral-700 dark:text-neutral-300 font-bold";
+			for (const page of buildPaginationItems(currentPage, totalPages)) {
+				if (page === HIDDEN_PAGE) {
+					const more = createIcon("material-symbols:more-horiz");
+					more.className = "mx-1";
+					pageList.appendChild(more);
+					continue;
+				}
+				if (page === currentPage) {
+					const active = document.createElement("div");
+					active.className =
+						"h-11 w-11 rounded-lg bg-(--primary) flex items-center justify-center font-bold text-white dark:text-black/70";
+					active.setAttribute("aria-current", "page");
+					active.textContent = String(page);
+					pageList.appendChild(active);
+					continue;
+				}
+
+				const link = createPageLink(page, `第 ${page} 页`);
+				link.className =
+					"btn-card w-11 h-11 rounded-lg overflow-hidden active:scale-[0.85]";
+				link.textContent = String(page);
+				pageList.appendChild(link);
+			}
+			nav.appendChild(pageList);
+
+			const next = createPageLink(
+				currentPage + 1,
+				"下一页",
+				currentPage >= totalPages,
+			);
+			next.appendChild(
+				createIcon("material-symbols:chevron-right-rounded"),
+			);
+			nav.appendChild(next);
+			root.appendChild(nav);
+		}
+
 		function initFilterButtons() {
 			const filterTags = document.querySelectorAll(".anime-filter-tag");
-			const sentinel = document.getElementById(
-				"infinite-scroll-sentinel",
-			);
 			const listContainer = document.getElementById(
 				"anime-list-container",
 			);
-			const lazyStore = document.getElementById("anime-lazy-store");
+			if (!listContainer) return;
+
 			window.animeFilterEventListeners.forEach((listener) => {
 				const [element, type, handler] = listener;
 				element.removeEventListener(type, handler);
 			});
 			window.animeFilterEventListeners = [];
+
+			const animeItems = Array.from(listContainer.children).filter((item) =>
+				item.hasAttribute("data-anime-status"),
+			);
+
+			function applyAnimeView(status, requestedPage, options = {}) {
+				const { historyMode = "replace", scroll = false } = options;
+				const filteredItems = animeItems.filter(
+					(item) =>
+						status === "all" ||
+						item.getAttribute("data-anime-status") === status,
+				);
+				const totalPages = Math.max(
+					1,
+					Math.ceil(filteredItems.length / animePageSize),
+				);
+				const currentPage = Math.min(
+					Math.max(1, requestedPage),
+					totalPages,
+				);
+				const pageStart = (currentPage - 1) * animePageSize;
+				const visibleItems = new Set(
+					filteredItems.slice(pageStart, pageStart + animePageSize),
+				);
+
+				animeItems.forEach((item) => {
+					item.classList.toggle("anime-hidden", !visibleItems.has(item));
+					item.classList.remove(
+						"anime-fade-out",
+						"anime-fade-in",
+						"anime-fade-in-active",
+					);
+					item.style.transitionDelay = "";
+					if (visibleItems.has(item)) {
+						item.classList.add("anime-fade-in");
+						const visibleIndex = filteredItems.indexOf(item) - pageStart;
+						item.style.transitionDelay = `${Math.max(0, visibleIndex) * 25}ms`;
+						requestAnimationFrame(() => {
+							item.classList.remove("anime-fade-in");
+							item.classList.add("anime-fade-in-active");
+						});
+					}
+				});
+
+				filterTags.forEach((tag) => {
+					tag.classList.toggle(
+						"anime-active",
+						tag.getAttribute("data-status") === status,
+					);
+				});
+
+				updateBrowserUrl(status, currentPage, historyMode);
+				renderPagination(status, currentPage, totalPages, (page) => {
+					applyAnimeView(status, page, {
+						historyMode: "push",
+						scroll: true,
+					});
+				});
+
+				if (scroll) {
+					const top =
+						listContainer.getBoundingClientRect().top +
+						window.scrollY -
+						96;
+					window.scrollTo({ top, behavior: "smooth" });
+				}
+			}
+
 			filterTags.forEach((tag) => {
 				const clickHandler = function () {
-					if (this.classList.contains("anime-active")) {
-						return;
-					}
-
-					filterTags.forEach((t) =>
-						t.classList.remove("anime-active"),
-					);
-					this.classList.add("anime-active");
-
-					if (
-						lazyStore &&
-						lazyStore.content.children.length > 0 &&
-						listContainer
-					) {
-						const fragment = document.createDocumentFragment();
-						while (lazyStore.content.firstChild) {
-							const node = lazyStore.content.firstChild;
-							fragment.appendChild(node);
-						}
-						listContainer.appendChild(fragment);
-					}
-
-					if (sentinel) {
-						sentinel.style.display = "none";
-					}
-					const initialHidden =
-						listContainer.querySelectorAll(".initial-hidden");
-					initialHidden.forEach((el) => {
-						el.classList.remove("hidden", "initial-hidden");
+					const status = this.getAttribute("data-status") || "all";
+					applyAnimeView(status, 1, {
+						historyMode: "push",
+						scroll: false,
 					});
-
-					const status = this.getAttribute("data-status");
-					const animeItems = Array.from(
-						listContainer.children,
-					).filter((item) => item.hasAttribute("data-anime-status"));
-					const itemsToHide = [];
-					const itemsToShow = [];
-					const itemsToKeep = [];
-					animeItems.forEach((item) => {
-						const itemStatus =
-							item.getAttribute("data-anime-status");
-						const shouldShow =
-							status === "all" || itemStatus === status;
-						const isCurrentlyVisible =
-							!item.classList.contains("anime-hidden");
-
-						if (shouldShow) {
-							isCurrentlyVisible
-								? itemsToKeep.push(item)
-								: itemsToShow.push(item);
-						} else {
-							if (isCurrentlyVisible) {
-								itemsToHide.push(item);
-							}
-						}
-					});
-					const firstPositions = new Map();
-					itemsToKeep.forEach((item) => {
-						const rect = item.getBoundingClientRect();
-						firstPositions.set(item, {
-							left: rect.left,
-							top: rect.top,
-						});
-					});
-					const runAnimation = () => {
-						itemsToHide.forEach((item) => {
-							item.classList.add("anime-hidden");
-							item.classList.remove("anime-fade-out");
-						});
-						itemsToShow.forEach((item) => {
-							item.classList.remove("anime-hidden");
-							item.classList.add("anime-fade-in");
-							item.style.transition = "none";
-						});
-						itemsToKeep.forEach((item) => {
-							const first = firstPositions.get(item);
-							if (!first) {
-								return;
-							}
-
-							const rect = item.getBoundingClientRect();
-							const deltaX = Math.round(first.left - rect.left);
-							const deltaY = Math.round(first.top - rect.top);
-
-							if (deltaX !== 0 || deltaY !== 0) {
-								item.style.willChange = "transform";
-								item.style.transition = "none";
-								item.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-							}
-						});
-						requestAnimationFrame(() => {
-							itemsToKeep.forEach((item) => {
-								item.style.transition =
-									"transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)";
-								item.style.transform = "";
-							});
-
-							const STAGGER_LIMIT = 20;
-							itemsToShow.forEach((item, index) => {
-								item.style.transition = "";
-								item.style.willChange = "opacity, transform";
-
-								const delay =
-									index < STAGGER_LIMIT ? index * 30 : 0;
-								item.style.transitionDelay = `${delay}ms`;
-
-								requestAnimationFrame(() => {
-									item.classList.remove("anime-fade-in");
-									item.classList.add("anime-fade-in-active");
-								});
-							});
-
-							setTimeout(
-								() => {
-									[...itemsToKeep, ...itemsToShow].forEach(
-										(item) => {
-											item.classList.remove(
-												"anime-fade-in-active",
-											);
-											item.style.transition = "";
-											item.style.transform = "";
-											item.style.opacity = "";
-											item.style.willChange = "";
-											item.style.transitionDelay = "";
-										},
-									);
-								},
-								600 +
-									(itemsToShow.length > 0
-										? Math.min(itemsToShow.length, 20) * 30
-										: 0),
-							);
-						});
-					};
-					if (itemsToHide.length > 0) {
-						itemsToHide.forEach((item) =>
-							item.classList.add("anime-fade-out"),
-						);
-						setTimeout(runAnimation, 200);
-					} else {
-						runAnimation();
-					}
 				};
 
 				tag.addEventListener("click", clickHandler);
@@ -509,46 +596,26 @@ const animeStatusCounts = {
 					clickHandler,
 				]);
 			});
-			if (sentinel && lazyStore && listContainer) {
-				const observer = new IntersectionObserver(
-					(entries) => {
-						if (entries[0].isIntersecting) {
-							const BATCH_SIZE = 24;
-							if (lazyStore.content.children.length === 0) {
-								sentinel.style.display = "none";
-								observer.disconnect();
-								return;
-							}
 
-							const fragment = document.createDocumentFragment();
-							let movedCount = 0;
-							while (
-								lazyStore.content.firstChild &&
-								movedCount < BATCH_SIZE
-							) {
-								const node = lazyStore.content.firstChild;
-								if (node.nodeType === 1) {
-									node.classList.add("anime-fade-in-active");
-								}
-								fragment.appendChild(node);
-								movedCount++;
-							}
+			const params = new URLSearchParams(window.location.search);
+			applyAnimeView(
+				getRequestedStatus(),
+				parsePositivePage(params.get("page")),
+			);
 
-							requestAnimationFrame(() => {
-								listContainer.appendChild(fragment);
-								if (lazyStore.content.children.length === 0) {
-									sentinel.style.display = "none";
-									observer.disconnect();
-								}
-							});
-						}
-					},
-					{ rootMargin: "200px" },
+			const popstateHandler = () => {
+				const nextParams = new URLSearchParams(window.location.search);
+				applyAnimeView(
+					getRequestedStatus(),
+					parsePositivePage(nextParams.get("page")),
 				);
-				observer.observe(sentinel);
-			} else if (sentinel) {
-				sentinel.style.display = "none";
-			}
+			};
+			window.addEventListener("popstate", popstateHandler);
+			window.animeFilterEventListeners.push([
+				window,
+				"popstate",
+				popstateHandler,
+			]);
 		}
 
 		document.addEventListener("DOMContentLoaded", initFilterButtons);
