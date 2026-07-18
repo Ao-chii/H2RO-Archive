@@ -12,6 +12,8 @@ interface Props {
 	tabs: FilterTab[];
 	dataAttr: string;
 	activeValue?: string;
+	countInParentheses?: boolean;
+	externalControl?: boolean;
 	class?: string;
 }
 
@@ -19,11 +21,16 @@ const {
 	tabs,
 	dataAttr,
 	activeValue = "all",
+	countInParentheses = true,
+	externalControl = false,
 	class: className = "",
 } = Astro.props;
 ---
 
-<div class:list={["filter-tabs", className]}>
+<div
+	class:list={["filter-tabs", className]}
+	data-filter-external={externalControl ? "true" : undefined}
+>
 	{
 		tabs.map((tab) => (
 			<button
@@ -37,7 +44,9 @@ const {
 				{tab.icon && <Icon name={tab.icon} class="text-base w-4 h-4" />}
 				<span>{tab.label}</span>
 				{tab.count !== undefined && (
-					<span class="filter-tabs-count">({tab.count})</span>
+					<span class="filter-tabs-count">
+						{countInParentheses ? `(${tab.count})` : tab.count}
+					</span>
 				)}
 			</button>
 		))

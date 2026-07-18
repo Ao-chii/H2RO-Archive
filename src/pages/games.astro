@@ -1,0 +1,73 @@
+---
+import "../styles/games.css";
+
+import { FilterTabs } from "@components/atoms/filter-tabs";
+import QueryPagination from "@components/control/QueryPagination.svelte";
+import { GameCard } from "@components/features/games";
+import { PageHeader, PageNotice } from "@components/features/page-header";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { Icon } from "astro-icon/components";
+
+import { type GameStatus, gameStatusMeta, games } from "@/data/games";
+
+const title = "游戏";
+const subtitle = "玩过、正在玩与想玩的个人游戏档案";
+const statusOrder: GameStatus[] = [
+	"playing",
+	"completed",
+	"wishlist",
+	"perfect",
+];
+const filterTabs = [
+	{
+		value: "all",
+		label: "全部",
+		icon: "material-symbols:apps",
+		count: games.length,
+	},
+	...statusOrder.map((status) => ({
+		value: status,
+		label: gameStatusMeta[status].label,
+		icon: gameStatusMeta[status].icon,
+		count: games.filter((game) => game.status === status).length,
+	})),
+];
+---
+
+<MainGridLayout title={title} description={subtitle}>
+	<script is:inline src="/js/game-library-handler.js"></script>
+
+	<div class="game-library flex w-full overflow-hidden rounded-(--radius-large) relative min-h-32">
+		<div class="game-library-panel card-base z-10 w-full px-5 py-6 sm:px-9">
+			<PageHeader title={title} subtitle={subtitle} />
+
+			<PageNotice text="XGN为本人打分，纯主观图一乐" />
+
+			<div class="mb-6">
+				<FilterTabs
+					tabs={filterTabs}
+					dataAttr="status"
+					countInParentheses={false}
+					externalControl={true}
+				/>
+			</div>
+
+			<div id="game-grid" class="game-grid items-stretch">
+				{games.map((game, index) => <GameCard game={game} index={index} />)}
+			</div>
+
+			<div id="no-results" class="game-no-results hidden">
+				<Icon name="material-symbols:search-off-rounded" />
+				<p>[ 当前筛选没有游戏记录 ]</p>
+			</div>
+
+			<QueryPagination
+				currentPage={1}
+				totalPages={Math.max(1, Math.ceil(games.length / 10))}
+				pageParam="page"
+				eventName="game-pagination"
+				client:only="svelte"
+			/>
+		</div>
+	</div>
+</MainGridLayout>

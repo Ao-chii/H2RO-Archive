@@ -8,6 +8,7 @@
 		var containers = document.querySelectorAll(".filter-tabs");
 
 		containers.forEach(function (container) {
+			if (container.dataset.filterExternal === "true") return;
 			if (!reset && container.dataset.initialized) return;
 			container.dataset.initialized = "true";
 

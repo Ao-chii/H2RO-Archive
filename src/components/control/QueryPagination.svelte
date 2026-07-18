@@ -1,13 +1,25 @@
 <script lang="ts">
 import Icon from "@iconify/svelte";
+import { onMount } from "svelte";
 
 interface Props {
 	currentPage: number;
 	totalPages: number;
 	pageParam?: string;
+	eventName?: string;
 }
 
-let { currentPage, totalPages, pageParam = "page" }: Props = $props();
+let {
+	currentPage: propCurrentPage,
+	totalPages: propTotalPages,
+	pageParam = "page",
+	eventName,
+}: Props = $props();
+
+let eventCurrentPage = $state(propCurrentPage);
+let eventTotalPages = $state(propTotalPages);
+const currentPage = $derived(eventName ? eventCurrentPage : propCurrentPage);
+const totalPages = $derived(eventName ? eventTotalPages : propTotalPages);
 
 const HIDDEN = -1;
 const ADJACENT_DISTANCE = 2;
@@ -54,6 +66,35 @@ function getPageHref(page: number): string {
 	return `${target.pathname}${target.search}${target.hash}`;
 }
 
+function handleNavigate(event: MouseEvent, page: number): void {
+	if (!eventName) return;
+	event.preventDefault();
+	if (page < 1 || page > totalPages) return;
+	window.dispatchEvent(
+		new CustomEvent(`${eventName}:navigate`, { detail: { page } }),
+	);
+}
+
+onMount(() => {
+	if (!eventName) return;
+
+	const updateHandler = (event: Event) => {
+		const detail = (
+			event as CustomEvent<{ currentPage: number; totalPages: number }>
+		).detail;
+		if (!detail) return;
+		eventCurrentPage = detail.currentPage;
+		eventTotalPages = detail.totalPages;
+	};
+
+	window.addEventListener(`${eventName}:update`, updateHandler);
+	window.dispatchEvent(new CustomEvent(`${eventName}:ready`));
+
+	return () => {
+		window.removeEventListener(`${eventName}:update`, updateHandler);
+	};
+});
+
 const pages = $derived(buildPages(currentPage, totalPages));
 </script>
 
@@ -61,6 +102,7 @@ const pages = $derived(buildPages(currentPage, totalPages));
 	<nav class="mt-6 flex flex-row gap-3 justify-center" aria-label="分页导航">
 		<a
 			href={currentPage > 1 ? getPageHref(currentPage - 1) : undefined}
+			onclick={(event) => handleNavigate(event, currentPage - 1)}
 			aria-label="上一页"
 			aria-disabled={currentPage <= 1}
 			class:disabled={currentPage <= 1}
@@ -88,6 +130,7 @@ const pages = $derived(buildPages(currentPage, totalPages));
 				{:else}
 					<a
 						href={getPageHref(page)}
+						onclick={(event) => handleNavigate(event, page)}
 						aria-label={`第 ${page} 页`}
 						class="btn-card w-11 h-11 rounded-lg overflow-hidden active:scale-[0.85]"
 					>
@@ -101,6 +144,7 @@ const pages = $derived(buildPages(currentPage, totalPages));
 			href={currentPage < totalPages
 				? getPageHref(currentPage + 1)
 				: undefined}
+			onclick={(event) => handleNavigate(event, currentPage + 1)}
 			aria-label="下一页"
 			aria-disabled={currentPage >= totalPages}
 			class:disabled={currentPage >= totalPages}

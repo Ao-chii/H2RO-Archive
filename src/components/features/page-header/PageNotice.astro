@@ -1,0 +1,43 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+	text: string;
+	class?: string;
+}
+
+const { text, class: className = "" } = Astro.props as Props;
+---
+
+<div class:list={["page-notice", className]}>
+	<Icon name="material-symbols:info" class="page-notice-icon" />
+	<p>{text}</p>
+</div>
+
+<style>
+	.page-notice {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		margin: -0.25rem 0 1.5rem;
+		padding: 0.875rem 0;
+		border-block: 1px solid var(--line-divider);
+		color: var(--muted);
+		font-family: var(--font-reading);
+		font-size: 0.95rem;
+		line-height: 1.65;
+		text-wrap: pretty;
+	}
+
+	.page-notice-icon {
+		width: 1.15rem;
+		height: 1.15rem;
+		margin-top: 0.18rem;
+		flex: 0 0 auto;
+		color: var(--blue-ink);
+	}
+
+	.page-notice p {
+		margin: 0;
+	}
+</style>

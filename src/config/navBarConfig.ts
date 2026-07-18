@@ -165,6 +165,11 @@ export const navBarConfig: NavBarConfig = {
 			children: [
 				LinkPreset.Diary,
 				LinkPreset.Anime,
+				{
+					name: "游戏",
+					url: "/games/",
+					icon: "solar:gamepad-bold",
+				},
 				LinkPreset.Albums,
 				LinkPreset.Friends,
 			],

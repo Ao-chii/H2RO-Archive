@@ -1,0 +1,178 @@
+---
+import Image from "@components/atoms/Image/Image.astro";
+import { Icon } from "astro-icon/components";
+
+import { type GameRecord, gameStatusMeta } from "@/data/games";
+
+interface Props {
+	game: GameRecord;
+	index: number;
+}
+
+const { game, index } = Astro.props as Props;
+const status = gameStatusMeta[game.status];
+const entryId = `game-entry-${index}`;
+const CoverTag = game.officialUrl ? "a" : "div";
+const formatRating = (rating: number) => rating.toFixed(1);
+const formatHours = (hours: number) =>
+	Number.isInteger(hours) ? String(hours) : hours.toFixed(1);
+const typeTones = ["blue", "sage", "amber", "violet", "red"] as const;
+const getTypeTone = (value: string) => {
+	let hash = 0;
+	for (const character of value) {
+		hash = (hash * 31 + (character.codePointAt(0) ?? 0)) >>> 0;
+	}
+	return typeTones[hash % typeTones.length];
+};
+---
+
+<article
+	class="game-entry card-base"
+	data-status={game.status}
+	aria-labelledby={entryId}
+>
+	<div class="game-cover-frame">
+		<CoverTag
+			href={game.officialUrl}
+			target={game.officialUrl ? "_blank" : undefined}
+			rel={game.officialUrl ? "noopener noreferrer" : undefined}
+			class:list={[
+				"game-cover-target",
+				{ "game-cover-link": Boolean(game.officialUrl) },
+			]}
+			aria-label={game.officialUrl ? `访问 ${game.title} 官网` : undefined}
+		>
+			{
+				game.cover ? (
+					<Image
+						src={game.cover}
+						alt={`${game.title} 封面`}
+						class="game-cover-image"
+						widths={[240, 360, 480]}
+						sizes="(max-width: 640px) 34vw, 160px"
+					/>
+				) : (
+					<div
+						class="game-cover-placeholder"
+						aria-label="Bangumi 封面待接入"
+					>
+						<span class="game-cover-index">
+							{String(index + 1).padStart(2, "0")}
+						</span>
+						<Icon
+							name="solar:gamepad-bold"
+							class="game-cover-placeholder-icon"
+						/>
+						<span class="game-cover-placeholder-label">
+							BANGUMI COVER
+						</span>
+						<span class="game-cover-placeholder-ratio">2 : 3</span>
+					</div>
+				)
+			}
+			{
+			game.officialUrl && (
+					<span class="game-cover-link-mark">
+						<Icon name="material-symbols:open-in-new" />
+						官网
+					</span>
+				)
+			}
+		</CoverTag>
+	</div>
+
+	<div class="game-entry-body">
+		<header class="game-entry-header">
+			<div class="game-title-block">
+				<h2 id={entryId} class="game-entry-title">{game.title}</h2>
+				{
+					game.originalTitle && (
+						<p class="game-entry-original-title">
+							{game.originalTitle}
+						</p>
+					)
+				}
+			</div>
+
+			<span class={`game-status game-status-${game.status}`}>
+				<Icon name={status.icon} class="game-status-icon" />
+				<span>{status.label}</span>
+			</span>
+		</header>
+
+		<dl class="game-meta-grid">
+			<div class="game-meta-item">
+				<dt>类型</dt>
+				<dd class="game-type-list">
+					{
+						game.genres.length > 0 ? (
+							game.genres.map((type) => (
+								<span class="game-type-chip" data-tone={getTypeTone(type)}>
+									{type}
+								</span>
+							))
+						) : (
+							<span>待补充</span>
+						)
+					}
+				</dd>
+			</div>
+			<div class="game-meta-item">
+				<dt>开发</dt>
+				<dd>{game.developer}</dd>
+			</div>
+			<div class="game-meta-item">
+				<dt>首发</dt>
+				<dd class="game-meta-mono">{game.releaseDate}</dd>
+			</div>
+			<div class="game-meta-item">
+				<dt>平台</dt>
+				<dd>{game.platforms.join(" / ")}</dd>
+			</div>
+		</dl>
+
+		{game.summary && <p class="game-entry-summary">{game.summary}</p>}
+
+		<footer class="game-entry-footer">
+			<div class="game-footer-slot game-footer-rating">
+				{
+					game.xgnRating !== undefined && (
+						<div class="game-rating" title="XGN 个人评分">
+							<span class="game-rating-label">XGN</span>
+							<strong>{formatRating(game.xgnRating)}</strong>
+							<span>/ 10</span>
+						</div>
+					)
+				}
+			</div>
+
+			{
+				game.articleUrl && (
+					<a
+						href={game.articleUrl}
+						class="game-entry-document-hint"
+						aria-label={`阅读 ${game.title} 的我的感想`}
+					>
+						<Icon name="material-symbols:article-outline-rounded" />
+						我的感想
+						<Icon name="material-symbols:chevron-right-rounded" />
+					</a>
+				)
+			}
+
+			<div class="game-footer-slot game-footer-playtime">
+				{
+					game.playtimeHours !== undefined && (
+						<div class="game-playtime" title="游玩时长">
+							<Icon
+								name="material-symbols:schedule-outline-rounded"
+								class="game-playtime-icon"
+							/>
+							<span>{formatHours(game.playtimeHours)} h</span>
+						</div>
+					)
+				}
+			</div>
+		</footer>
+	</div>
+</article>

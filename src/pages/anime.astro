@@ -2,7 +2,7 @@
 import "../styles/anime.css";
 
 import { AnimeFilters, AnimeGrid } from "@components/features/anime";
-import { PageHeader } from "@components/features/page-header";
+import { PageHeader, PageNotice } from "@components/features/page-header";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 
 import { siteConfig } from "../config";
@@ -87,12 +87,7 @@ const animeStatusCounts = {
 					subtitle={i18n(I18nKey.animeSubtitle)}
 					class="mb-3"
 				/>
-				<p
-					class="mb-8 text-sm text-black/55 dark:text-white/55"
-					style="font-family: var(--font-reading);"
-				>
-					XGN 代表个人评分
-				</p>
+				<PageNotice text="XGN为本人打分，纯主观图一乐" />
 
 				<div class="mb-6">
 					<AnimeFilters
