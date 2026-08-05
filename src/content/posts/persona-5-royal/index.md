@@ -1,5 +1,5 @@
 ---
-title: 狗尾续貂的“天下第一” —— P5R 游玩感想
+title: 狗尾续貂的「天下第一」 —— P5R 游玩感想
 published: 2026-07-08
 description: 《女神异闻录 5 皇家版》通关感想
 tags: ["2026", 游戏, JRPG, ATLUS]
