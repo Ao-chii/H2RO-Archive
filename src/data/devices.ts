@@ -54,11 +54,20 @@ export const devicesData: DeviceCategory = {
 	],
 	Audio: [
 		{
-			name: "EDIFIER W820NB",
-			image: "/images/device/edifier-w820nb-double-gold.jpg",
-			specs: "双金标版 / Wireless ANC Headphones",
-			description: "漫步者 W820NB 双金标版，日常使用的无线降噪头戴耳机。",
-			link: "https://www.edifier.com/",
+			name: "Philips SHP9500",
+			image: "/images/device/philips-shp9500.png",
+			specs: "Open-back / 50mm Drivers / Wired",
+			description: "飞利浦 SHP9500 开放式头戴耳机，声场开阔，佩戴舒适。",
+			link: "https://www.philips.com/",
+		},
+	],
+	Mouse: [
+		{
+			name: "ATK A9 Pro",
+			image: "/images/device/atk-a9-pro.jpg",
+			specs: "Pink / Tri-mode / Lightweight Wireless",
+			description: "ATK 蜻蜓 A9 Pro 轻量化无线鼠标，对称模具，适配抓握与趴握。",
+			link: "https://www.atk.store/products/atk-dragonfly-a9-series-lightweight-wireless-mouse",
 		},
 	],
 };
