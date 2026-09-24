@@ -33,13 +33,13 @@ export const archiveCategories: ArchiveCategory[] = [
 	{
 		slug: "game",
 		name: "游戏",
-		kicker: "05 / GAME",
+		kicker: "04 / GAME",
 		icon: "solar:gamepad-bold",
 	},
 	{
 		slug: "reading",
 		name: "读书",
-		kicker: "06 / READING",
+		kicker: "05 / READING",
 		icon: "material-symbols:article",
 	},
 ];
